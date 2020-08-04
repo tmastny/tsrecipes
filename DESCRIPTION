@@ -18,3 +18,5 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://github.com/tmastny/tsrecipes
+BugReports: https://github.com/tmastny/tsrecipes/issues
