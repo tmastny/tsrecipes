@@ -15,5 +15,41 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(tsrecipes)
+library(tidyverse)
+library(janitor)
 ```
+
+Replicating: https://reasonabledeviations.com/2018/04/19/classifying-timeseries/
+
+
+```{r}
+d <- read_csv(
+  "../SharePriceIncrease/SharePriceIncrease_TRAIN.arff", comment = "@",
+  col_names = FALSE
+)
+```
+
+```{r}
+clean <- d %>%
+  mutate(id = row_number()) %>%
+  pivot_longer(X1:X60, names_to = "day", names_transform = list(day = parse_number)) %>%
+  rename(class = X61) %>%
+  mutate(class = ifelse(class == 0, "no_increase", "increase"))
+
+clean
+```
+
+```{r}
+ts_feature <- clean %>%
+  group_by(id, class) %>%
+  summarise(value = list(value), .groups = "drop")
+
+ts_feature
+```
+
+
+
+```{r}
+fft(ts_feature$value[[1]])
+```
+
