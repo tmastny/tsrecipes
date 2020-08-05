@@ -47,9 +47,103 @@ ts_feature <- clean %>%
 ts_feature
 ```
 
+```{r}
+ts_feature %>%
+  saveRDS("../ts_cols.RDS")
+```
+
+
 
 
 ```{r}
 fft(ts_feature$value[[1]])
+```
+
+```{r}
+col_names <- c("value", "value2")
+```
+
+```{r}
+ts_feature_test <- ts_feature %>%
+  mutate(value2 = value)
+```
+
+
+```{r}
+map(ts_feature_test[, col_names], )
+```
+
+```{r}
+fns <- list(Re = Re, Im = Im)
+k <- 4
+ts <- ts_feature_test$value[[1]]
+name <- "value"
+```
+
+```{r}
+fft_transform <- function(ts, name, k, fns) {
+  ts_fft <- fft(ts)[1:k]
+  names(ts_fft) <- paste0(name, "_", seq_along(ts_fft))
+  
+  purrr::map(fns, ~.(ts_fft)) %>% unlist() %>%
+}
+
+fft_transform_map <- function(l, name, k, fns) {
+  map(l, fft_transform, name, k, fns)
+}
+```
+
+```{r}
+ts_xf <- ts_feature_test %>%
+  rowwise(id, class) %>%
+  summarise(across(all_of(col_names), fft_transform, cur_column(), 4, fns))
+```
+
+```{r}
+col_names %>%
+  map_df(~fft_transform_map(ts_feature_test[[.]], ., k, fns))
+
+ts_feature_test[, col_names] %>%
+  imap_dfr(fft_transform_map, k, fns)
+```
+
+
+```{r}
+l <- ts_feature_test$value
+
+ttf_transform <- function(l, name, k, fns) {
+  tff_mat <- l %>% 
+    simplify2array() %>%
+    t() %>%
+    fft() %>%
+    .[, 1:k]
+  
+  colnames(tff_mat) <- paste0(name, "_", 1:ncol(tff_mat))
+  
+  purrr::imap(fns, apply_fn, tff_mat) %>%
+    map_dfc(as_tibble)
+}
+
+apply_fn <- function(fn, fn_name, mat) {
+  colnames(mat) <- paste0(colnames(mat), "_", fn_name)
+  fn(mat)
+}
+```
+
+Can multiple columns replace one column?
+
+```{r}
+ts_feature_test[, col_names] <- tibble(value = 1:965, value2 = 1:965,
+                                       value3 = 1:965)
+ts_feature_test[, col_names] %>%
+  imap_dfc(ttf_transform, k, fns)
+```
+
+No. 
+How do other recipes replace one-to-multi column transformations?
+
+```{r}
+ts_feature_test2 <- ts_feature_test
+ts_feature_test2[, col_names] <- NULL
 ```
 
