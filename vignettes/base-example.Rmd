@@ -39,24 +39,17 @@ tsdb_dct
 ```{r}
 indices <- prepped$steps[[1]]$coefs$ts
 
-reconstruct <- tsdb_dct %>%
-  rowwise(id, class, ts) %>%
-  summarise(reconts = list(c(c_across()))) %>%
-  rowwise() %>%
-  mutate(
-    reconts = list(invert(reconts, indices, 60)),
-    n = list(1:60)
-  ) %>%
-  ungroup()
+tsdb_recon <- tsdb_dct %>%
+  reconstruct(starts_with("ts."), indices = indices, n = 60)
 ```
 
 ```{r}
-reconstruct %>%
+tsdb_recon %>%
   sample_n(5) %>%
-  unnest(c(ts, reconts, n)) %>%
+  unnest(c(ts, recon, n)) %>%
   ggplot(aes(n)) +
   geom_line(aes(y = ts, group = id), color = "red") +
-  geom_line(aes(y = reconts, group = id), color = "blue") +
+  geom_line(aes(y = recon, group = id), color = "blue") +
   facet_wrap(~id)
 ```
 

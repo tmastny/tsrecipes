@@ -1,0 +1,150 @@
+---
+title: "tune"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tune}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tsrecipes)
+library(tidymodels)
+```
+
+```{r}
+lg <- logistic_reg(penalty = tune(), mixture = 1) %>%
+  set_engine("glmnet")
+```
+
+
+```{r}
+rec <- recipe(prices) %>%
+  update_role(everything(), new_role = "var") %>%
+  update_role(class, new_role = "outcome") %>%
+  step_dct(ts, k = tune())
+```
+
+
+```{r}
+pipeline <- workflow() %>%
+  add_model(lg) %>%
+  add_recipe(rec)
+```
+
+```{r}
+coef_grid <- expand_grid(
+  k = c(4, 8, 16, 32), 
+  penalty = 10^seq(-4, -1, length.out = 30)
+)
+```
+
+```{r}
+cv_results <- pipeline %>%
+  tune_grid(
+    resamples = vfold_cv(prices),
+    grid = coef_grid,
+    param_info = parameters(pipeline) %>% update(k = num_terms(c(4, 60)))
+  )
+```
+
+```{r}
+cv_results %>%
+  collect_metrics() %>%
+  filter(.metric == "accuracy") %>%
+  arrange(desc(mean))
+```
+
+```{r}
+cv_results %>%
+  show_best("accuracy")
+```
+
+```{r}
+model <- pipeline %>%
+  finalize_workflow(cv_results %>% select_best("accuracy")) %>%
+  fit(data = prices)
+```
+
+```{r}
+model %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+```
+
+```{r}
+indices <- model$pre$mold$blueprint$recipe$steps[[1]]$coefs$ts
+```
+
+```{r}
+prices_coef <- prices %>%
+  bind_cols(model$pre$mold$predictors)
+
+price_recon <- prices_coef %>%
+  bind_cols(model$pre$mold$predictors) %>%
+  reconstruct(ts.1:ts.53, indices = indices, n = 60)
+```
+
+```{r}
+price_recon %>%
+  sample_n(10) %>%
+  unnest(c(ts, recon, n)) %>%
+  ggplot(aes(n)) +
+  geom_line(aes(y = ts), color = "red") +
+  geom_line(aes(y = recon), color = "blue") +
+  facet_wrap(~id)
+```
+
+```{r}
+ts.32_imp <- prices_coef %>%
+  summarise(across(starts_with("ts."), mean)) %>%
+  mutate(ts.32 = list(seq(
+    min(prices_coef$ts.32), 
+    max(prices_coef$ts.32)
+  ))) %>%
+  unnest(ts.32) %>%
+  bind_cols(predict(pull_workflow_fit(model), ., type = "prob"))
+
+ts.32_imp %>%
+  ggplot(aes(ts.32, .pred_increase)) +
+  geom_line()
+```
+
+```{r}
+ts.32_recon <- ts.32_imp %>%
+  reconstruct(ts.1:ts.53, indices = indices, n = 60)
+```
+
+```{r}
+ts.32_recon %>%
+  select(ts.32, recon, n) %>%
+  unnest(c(recon, n)) %>%
+  ggplot(aes(n, recon, color = ts.32, group = ts.32)) +
+  geom_line()
+```
+
+Could there really be that little variation, when there is so little correlation?
+
+```{r}
+prices_coef %>%
+  select(starts_with("ts.")) %>%
+  corrr::correlate() %>%
+  corrr::stretch() %>%
+  arrange(desc(abs(r))) %>%
+  filter(x == "ts.32")
+```
+
+
+```{r}
+prices %>%
+  count(class) %>%
+  mutate(n / sum(n))
+```
+

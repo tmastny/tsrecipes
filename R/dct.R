@@ -106,6 +106,18 @@ bake.step_dct <- function(object, new_data, ...) {
 }
 
 
+#' @export
+tunable.step_dct <- function(x, ...) {
+  tibble::tibble(
+    name = "k",
+    call_info = list(list(pkg = "dials", fun = "num_terms")),
+    source = "recipe",
+    component = "step_dct",
+    component_id = x$id
+  )
+}
+
+
 # https://stackoverflow.com/questions/11215162/how-to-perform-a-fast-dct-discrete-cosine-transform-in-r
 #' @export
 fdct <- function(x) {
@@ -142,4 +154,17 @@ invert <- function(coefs, indices, n) {
   dct[indices] <- coefs
 
   dtt::dct(dct, inverted = TRUE)
+}
+
+#' @export
+reconstruct <- function(x, ..., indices, n) {
+  x %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(recon = list(c(dplyr::c_across(...)))) %>%
+    rowwise() %>%
+    mutate(
+      recon = list(invert(recon, indices, n)),
+      n = list(1:n)
+    ) %>%
+    ungroup()
 }
