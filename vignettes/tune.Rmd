@@ -88,7 +88,6 @@ prices_coef <- prices %>%
   bind_cols(model$pre$mold$predictors)
 
 price_recon <- prices_coef %>%
-  bind_cols(model$pre$mold$predictors) %>%
   reconstruct(ts.1:ts.53, indices = indices, n = 60)
 ```
 
@@ -123,24 +122,15 @@ ts.32_recon <- ts.32_imp %>%
 ```
 
 ```{r}
+set.seed(10)
 ts.32_recon %>%
   select(ts.32, recon, n) %>%
+  sample_n(10) %>%
   unnest(c(recon, n)) %>%
-  ggplot(aes(n, recon, color = ts.32, group = ts.32)) +
-  geom_line()
+  ggplot(aes(n, recon, color = as.factor(ts.32))) +
+  geom_line(show.legend = FALSE) +
+  facet_wrap(~ts.32)
 ```
-
-Could there really be that little variation, when there is so little correlation?
-
-```{r}
-prices_coef %>%
-  select(starts_with("ts.")) %>%
-  corrr::correlate() %>%
-  corrr::stretch() %>%
-  arrange(desc(abs(r))) %>%
-  filter(x == "ts.32")
-```
-
 
 ```{r}
 prices %>%
