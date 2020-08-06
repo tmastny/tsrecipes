@@ -1,3 +1,4 @@
+#' @export
 step_fft <- function(
   recipe,
   ...,
@@ -5,6 +6,8 @@ step_fft <- function(
   trained = FALSE,
   k = 4,
   fns = list(Re = Re, Im = Im),
+  dct = TRUE,
+  preserve = FALSE,
   series = NULL,
   skip = FALSE,
   id = recipes::rand_id("tff")
@@ -20,6 +23,7 @@ step_fft <- function(
       role = role,
       k = k,
       fns = fns,
+      preserve = preserve,
       series = series,
       skip = skip,
       id = id
@@ -27,7 +31,7 @@ step_fft <- function(
   )
 }
 
-step_fft_new <- function(terms, role, trained, k, fns, series, skip, id) {
+step_fft_new <- function(terms, role, trained, k, fns, preserve, series, skip, id) {
   step(
     subclass = "fft",
     terms = terms,
@@ -35,12 +39,14 @@ step_fft_new <- function(terms, role, trained, k, fns, series, skip, id) {
     trained = trained,
     k = k,
     fns = fns,
+    preserve = preserve,
     series = series,
     skip = skip,
     id = id
   )
 }
 
+#' @export
 prep.step_fft <- function(x, training, info = NULL) {
   col_names <- recipes::terms_select(terms = x$terms, info = info)
 
@@ -50,6 +56,7 @@ prep.step_fft <- function(x, training, info = NULL) {
     role = x$role,
     k = x$k,
     fns = x$fns,
+    preserve = x$preserve,
     series = col_names,
     skip = x$skip,
     id = x$id
@@ -59,8 +66,8 @@ prep.step_fft <- function(x, training, info = NULL) {
 ttf_transform <- function(l, name, k, fns) {
   tff_mat <- l %>%
     simplify2array() %>%
+    mvfft() %>%
     t() %>%
-    fft() %>%
     .[, 1:k]
 
   colnames(tff_mat) <- paste0(name, "_", 1:ncol(tff_mat))
@@ -74,13 +81,16 @@ apply_fn <- function(fn, fn_name, mat) {
   fn(mat)
 }
 
+#' @export
 bake.step_fft <- function(object, new_data, ...) {
   col_names <- object$series
 
   tff_cols <- new_data[, col_names] %>%
     purrr::imap_dfc(ttf_transform, object$k, object$fns)
 
-  new_data[, col_names] <- NULL
+  if (!object$preserve) {
+    new_data[, col_names] <- NULL
+  }
   dplyr::bind_cols(new_data, tff_cols)
 }
 

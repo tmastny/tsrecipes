@@ -9,5 +9,5 @@
 #'   \item{carat}{weight of the diamond, in carats}
 #'   ...
 #' }
-#' @source \url{http://www.diamondse.info/}
+#' @source \url{http://www.timeseriesclassification.com/description.php?Dataset=SharePriceIncrease}
 "prices"

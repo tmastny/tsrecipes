@@ -1,0 +1,73 @@
+---
+title: "benchmarking-dct"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{benchmarking-dct}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tsrecipes)
+library(tidyverse)
+```
+
+```{r}
+ts_mat <- tsrecipes::prices$ts %>%
+  simplify2array() 
+
+ts_mat %>% str
+```
+
+```{r}
+library(dtt)
+
+dct1 <- mvdct(ts_mat) %>% t()
+```
+
+```{r}
+dct1 %>% str()
+```
+
+```{r}
+colnames(dct1) <- paste0("ts", "_", 1:ncol(dct1))
+```
+
+
+```{r}
+dct_xf <- dct1[1:2, which(vars >= top_k)]
+```
+
+```{r}
+list(a = dct_xf, b = dct_xf) %>%
+  map(as_tibble) %>%
+  dplyr::bind_cols()
+```
+
+
+```{r}
+vars <- dct1 %>%
+  colVars()
+
+vars
+```
+
+```{r}
+k <- 4
+top_k <- sort(vars, decreasing = TRUE)[1:4] %>%
+  min()
+```
+
+
+```{r}
+which(vars >= top_k)
+```
+
+
