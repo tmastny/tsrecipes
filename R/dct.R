@@ -79,8 +79,7 @@ colVars <- function(x) {
 dct_transform <- function(l) {
   l %>%
     simplify2array() %>%
-    t() %>%
-    apply(1, dtt::dct) %>%
+    mvfdct() %>%
     t()
 }
 
@@ -119,10 +118,12 @@ fdct <- function(x) {
 
 ifdct <- function(x) {
   N <- length(x)
-  P <- exp(complex(imaginary = pi / 2 / N) * (seq(N) - 1))
+  P <- exp(complex(imaginary = pi / 2 / N) * (seq(2 * N) - 1))
 
   w <- c(x, x[N:1])
-  Re(fft(2 * x * P, inverse = TRUE))
+
+  Re(fft(2 * w * P, inverse = TRUE))
+  fft(2 * w * P, inverse = TRUE)[1:N]
 }
 
 
@@ -133,4 +134,12 @@ mvfdct <- function(m) {
 
   w <- rbind(m, m[N:1, ])
   0.5 * Re(mvfft(w) / P)[1:N, ]
+}
+
+#' @export
+invert <- function(coefs, indices, n) {
+  dct <- vector(mode = "numeric", length = n)
+  dct[indices] <- coefs
+
+  dtt::dct(dct, inverted = TRUE)
 }

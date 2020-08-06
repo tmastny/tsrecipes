@@ -17,133 +17,47 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(tidyverse)
 library(janitor)
-```
-
-Replicating: https://reasonabledeviations.com/2018/04/19/classifying-timeseries/
-
-
-```{r}
-d <- read_csv(
-  "../SharePriceIncrease/SharePriceIncrease_TRAIN.arff", comment = "@",
-  col_names = FALSE
-)
+library(tsrecipes)
+library(recipes)
 ```
 
 ```{r}
-clean <- d %>%
-  mutate(id = row_number()) %>%
-  pivot_longer(X1:X60, names_to = "day", names_transform = list(day = parse_number)) %>%
-  rename(class = X61) %>%
-  mutate(class = ifelse(class == 0, "no_increase", "increase"))
-
-clean
-```
-
-```{r}
-ts_feature <- clean %>%
-  group_by(id, class) %>%
-  summarise(value = list(value), .groups = "drop")
-
-ts_feature
-```
-
-```{r}
-ts_feature %>%
-  saveRDS("../ts_cols.RDS")
-```
-
-
-
-
-```{r}
-fft(ts_feature$value[[1]])
-```
-
-```{r}
-col_names <- c("value", "value2")
-```
-
-```{r}
-ts_feature_test <- ts_feature %>%
-  mutate(value2 = value)
+tsdb <- tsrecipes::prices
 ```
 
 
 ```{r}
-map(ts_feature_test[, col_names], )
+prepped <- recipe(tsdb) %>%
+  step_dct(ts, k = 8, preserve = TRUE) %>%
+  prep()
+
+
+tsdb_dct <- bake(prepped, tsdb)
+tsdb_dct
 ```
 
 ```{r}
-fns <- list(Re = Re, Im = Im)
-k <- 4
-ts <- ts_feature_test$value[[1]]
-name <- "value"
+indices <- prepped$steps[[1]]$coefs$ts
+
+reconstruct <- tsdb_dct %>%
+  rowwise(id, class, ts) %>%
+  summarise(reconts = list(c(c_across()))) %>%
+  rowwise() %>%
+  mutate(
+    reconts = list(invert(reconts, indices, 60)),
+    n = list(1:60)
+  ) %>%
+  ungroup()
 ```
 
 ```{r}
-fft_transform <- function(ts, name, k, fns) {
-  ts_fft <- fft(ts)[1:k]
-  names(ts_fft) <- paste0(name, "_", seq_along(ts_fft))
-  
-  purrr::map(fns, ~.(ts_fft)) %>% unlist() %>%
-}
-
-fft_transform_map <- function(l, name, k, fns) {
-  map(l, fft_transform, name, k, fns)
-}
+reconstruct %>%
+  sample_n(5) %>%
+  unnest(c(ts, reconts, n)) %>%
+  ggplot(aes(n)) +
+  geom_line(aes(y = ts, group = id), color = "red") +
+  geom_line(aes(y = reconts, group = id), color = "blue") +
+  facet_wrap(~id)
 ```
 
-```{r}
-ts_xf <- ts_feature_test %>%
-  rowwise(id, class) %>%
-  summarise(across(all_of(col_names), fft_transform, cur_column(), 4, fns))
-```
-
-```{r}
-col_names %>%
-  map_df(~fft_transform_map(ts_feature_test[[.]], ., k, fns))
-
-ts_feature_test[, col_names] %>%
-  imap_dfr(fft_transform_map, k, fns)
-```
-
-
-```{r}
-l <- ts_feature_test$value
-
-ttf_transform <- function(l, name, k, fns) {
-  tff_mat <- l %>% 
-    simplify2array() %>%
-    t() %>%
-    fft() %>%
-    .[, 1:k]
-  
-  colnames(tff_mat) <- paste0(name, "_", 1:ncol(tff_mat))
-  
-  purrr::imap(fns, apply_fn, tff_mat) %>%
-    map_dfc(as_tibble)
-}
-
-apply_fn <- function(fn, fn_name, mat) {
-  colnames(mat) <- paste0(colnames(mat), "_", fn_name)
-  fn(mat)
-}
-```
-
-Can multiple columns replace one column?
-
-```{r}
-ts_feature_test[, col_names] <- tibble(value = 1:965, value2 = 1:965,
-                                       value3 = 1:965)
-ts_feature_test[, col_names] %>%
-  imap_dfc(ttf_transform, k, fns)
-```
-
-No. 
-How do other recipes replace one-to-multi column transformations?
-
-```{r}
-ts_feature_test2 <- ts_feature_test
-ts_feature_test2[, col_names] <- NULL
-```
 

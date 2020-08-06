@@ -74,8 +74,16 @@ dct_dtt_apply <- function(l) {
     t()
 }
 
+dct_dtt_mv <- function(l) {
+  l %>%
+    simplify2array() %>%
+    t() %>% 
+    dct()
+}
+
 bench_tsdb <- bench::mark(
   dct_dtt_apply(tsdb),
+  dct_dtt_mv(tsdb),
   dct_so_apply(tsdb),
   dct_so_mv(tsdb)
 )
