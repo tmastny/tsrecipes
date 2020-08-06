@@ -105,5 +105,5 @@ test_that("step_dct agrees with dct", {
 
   ts1_dct <- dtt::dct(prices$ts[[1]])[step_index]
 
-  expect_equal(ts1_step_fft, ts1_fft)
+  expect_equal(ts1_step_dct, ts1_dct)
 })

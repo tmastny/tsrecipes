@@ -20,54 +20,112 @@ library(tidyverse)
 ```
 
 ```{r}
-ts_mat <- tsrecipes::prices$ts %>%
-  simplify2array() 
-
-ts_mat %>% str
-```
-
-```{r}
 library(dtt)
-
-dct1 <- mvdct(ts_mat) %>% t()
 ```
 
 ```{r}
-dct1 %>% str()
+tsdb <- tsrecipes::prices$ts
+ts <- tsdb[[1]]
 ```
 
 ```{r}
-colnames(dct1) <- paste0("ts", "_", 1:ncol(dct1))
+x <- ts
+```
+
+```{r}
+dct_dtt <- dtt::dct
+bench_ts <- bench::mark(
+  fdct(ts),
+  dct_dtt(ts)
+)
+```
+
+```{r}
+bench_ts %>%
+  select(expression, min, median, mem_alloc)
+```
+
+
+
+```{r}
+dct_so_apply <- function(l) {
+  l %>%
+    simplify2array() %>%
+    t() %>%
+    apply(1, fdct) %>%
+    t()
+}
+
+dct_so_mv <- function(l) {
+   l %>%
+    simplify2array() %>%
+    mvfdct() %>%
+    t()
+}
 ```
 
 
 ```{r}
-dct_xf <- dct1[1:2, which(vars >= top_k)]
+dct_dtt_apply <- function(l) {
+  l %>%
+    simplify2array() %>%
+    t() %>%
+    apply(1, dtt::dct) %>%
+    t()
+}
+
+bench_tsdb <- bench::mark(
+  dct_dtt_apply(tsdb),
+  dct_so_apply(tsdb),
+  dct_so_mv(tsdb)
+)
 ```
 
 ```{r}
-list(a = dct_xf, b = dct_xf) %>%
-  map(as_tibble) %>%
-  dplyr::bind_cols()
+bench_tsdb %>%
+  select(expression, min, median, mem_alloc)
+```
+
+## Inverse
+
+```{r}
+its <- dct_dtt(ts)
 ```
 
 
 ```{r}
-vars <- dct1 %>%
-  colVars()
-
-vars
+bench_its <- bench::mark(
+  dct_dtt(its, inverted = TRUE)
+)
 ```
 
 ```{r}
-k <- 4
-top_k <- sort(vars, decreasing = TRUE)[1:4] %>%
-  min()
+bench_its %>%
+  select(expression, min, median, mem_alloc)
 ```
+
+
+
 
 
 ```{r}
-which(vars >= top_k)
+df <- tibble(
+  n = 1:60,
+  ts = ts,
+  reconstruct = dct_dtt(ifelse(its > 8, its, 0), inverted = TRUE)
+) 
 ```
 
+```{r}
+its[ifelse(its > 8, its, 0) != 0] %>% length()
+```
+
+
+
+```{r}
+df %>%
+  ggplot(aes(n)) +
+  geom_line(aes(y = ts), color = "red") +
+  geom_line(aes(y = reconstruct), color = "blue")
+```
 

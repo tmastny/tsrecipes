@@ -80,7 +80,8 @@ dct_transform <- function(l) {
   l %>%
     simplify2array() %>%
     t() %>%
-    apply(1, dtt::dct)
+    apply(1, dtt::dct) %>%
+    t()
 }
 
 #' @export
@@ -105,3 +106,31 @@ bake.step_dct <- function(object, new_data, ...) {
     dplyr::bind_cols(new_data, .)
 }
 
+
+# https://stackoverflow.com/questions/11215162/how-to-perform-a-fast-dct-discrete-cosine-transform-in-r
+#' @export
+fdct <- function(x) {
+  N <- length(x)
+  P <- exp(complex(imaginary = pi / 2 / N) * (seq(2 * N) - 1))
+
+  w <- c(x, x[N:1])
+  0.5 * Re(fft(w) / P)[1:N]
+}
+
+ifdct <- function(x) {
+  N <- length(x)
+  P <- exp(complex(imaginary = pi / 2 / N) * (seq(N) - 1))
+
+  w <- c(x, x[N:1])
+  Re(fft(2 * x * P, inverse = TRUE))
+}
+
+
+#' @export
+mvfdct <- function(m) {
+  N <- nrow(m)
+  P <- exp(complex(imaginary = pi / 2 / N) * (seq(2 * N) - 1))
+
+  w <- rbind(m, m[N:1, ])
+  0.5 * Re(mvfft(w) / P)[1:N, ]
+}
