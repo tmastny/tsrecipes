@@ -44,6 +44,12 @@ step_dct_new <- function(terms, role, trained, k, preserve, coefs, skip, id) {
 }
 
 #' @export
+colVars <- function(x) {
+  n <- nrow(x)
+  n / (n - 1) * (colMeans(x * x) - colMeans(x)^2)
+}
+
+#' @export
 prep.step_dct <- function(x, training, info = NULL) {
   col_names <- recipes::terms_select(terms = x$terms, info = info)
   k <- x$k
@@ -56,7 +62,11 @@ prep.step_dct <- function(x, training, info = NULL) {
     top_k <- sort(vars, decreasing = TRUE)[1:k] %>%
       min()
 
-    coefs[[col_name]] <- which(vars >= top_k)
+
+    coefs[[col_name]] <- list(
+      .length = length(vars),
+      .indices = which(vars >= top_k)
+    )
   }
 
   step_dct_new(
@@ -69,11 +79,6 @@ prep.step_dct <- function(x, training, info = NULL) {
     skip = x$skip,
     id = x$id
   )
-}
-
-colVars <- function(x) {
-  n <- nrow(x)
-  n / (n - 1) * (colMeans(x * x) - colMeans(x)^2)
 }
 
 dct_transform <- function(l) {
@@ -92,7 +97,7 @@ bake.step_dct <- function(object, new_data, ...) {
     dct <- dct_transform(new_data[[col_name]])
     colnames(dct) <- paste0(col_name, ".", 1:ncol(dct))
 
-    compressed_dct <- dct[, coefs[[col_name]]]
+    compressed_dct <- dct[, coefs[[col_name]]$.indices]
     dct_cols[[col_name]] <- compressed_dct
   }
 
@@ -128,17 +133,6 @@ fdct <- function(x) {
   0.5 * Re(fft(w) / P)[1:N]
 }
 
-ifdct <- function(x) {
-  N <- length(x)
-  P <- exp(complex(imaginary = pi / 2 / N) * (seq(2 * N) - 1))
-
-  w <- c(x, x[N:1])
-
-  Re(fft(2 * w * P, inverse = TRUE))
-  fft(2 * w * P, inverse = TRUE)[1:N]
-}
-
-
 #' @export
 mvfdct <- function(m) {
   N <- nrow(m)
@@ -148,23 +142,3 @@ mvfdct <- function(m) {
   0.5 * Re(mvfft(w) / P)[1:N, ]
 }
 
-#' @export
-invert <- function(coefs, indices, n) {
-  dct <- vector(mode = "numeric", length = n)
-  dct[indices] <- coefs
-
-  dtt::dct(dct, inverted = TRUE)
-}
-
-#' @export
-reconstruct <- function(x, ..., indices, n) {
-  x %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(recon = list(c(dplyr::c_across(...)))) %>%
-    rowwise() %>%
-    mutate(
-      recon = list(invert(recon, indices, n)),
-      n = list(1:n)
-    ) %>%
-    ungroup()
-}

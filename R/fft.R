@@ -5,6 +5,9 @@ step_fft <- function(
   role = "predictor",
   trained = FALSE,
   k = 4,
+  # TODO: remove fns option. I think it makes sense to
+  #       always convert to Re/Im (for reconstruction)
+  #       If someone wants to remove in a later step, that's up to them.
   fns = list(Re = Re, Im = Im),
   dct = TRUE,
   preserve = FALSE,
