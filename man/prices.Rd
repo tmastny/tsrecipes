@@ -3,12 +3,13 @@
 \docType{data}
 \name{prices}
 \alias{prices}
-\title{Prices of 50,000 round cut diamonds.}
+\title{Share Price Increase}
 \format{
 A data frame with 53940 rows and 10 variables:
 \describe{
-\item{price}{price, in US dollars}
-\item{carat}{weight of the diamond, in carats}
+\item{id}{unique id of the time series}
+\item{class}{whether or not the time series increased or not}
+\item{ts}{list column, containing a time series of length 60 for each row}
 ...
 }
 }
