@@ -47,5 +47,5 @@ reconstruct <- function(x, name, step, ...) {
       n = list(1:step$coefs[[name]]$.length)
     ) %>%
     dplyr::ungroup() %>%
-    select(-coefs)
+    dplyr::select(-coefs)
 }
