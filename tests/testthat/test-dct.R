@@ -26,9 +26,9 @@ test_that("step_dct agrees with dct", {
     .[1, ] %>%
     unlist(use.names = FALSE)
 
-  step_index = prepped$steps[[1]]$coefs$ts
+  indices <- prepped$steps[[1]]$coefs$ts$.indices
 
-  ts1_dct <- dtt::dct(prices$ts[[1]])[step_index]
+  ts1_dct <- dtt::dct(prices$ts[[1]])[indices]
 
   expect_equal(ts1_step_dct, ts1_dct)
 })
