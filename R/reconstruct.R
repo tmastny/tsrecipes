@@ -20,6 +20,22 @@ invert.step_dct <- function(step, name, coefs) {
   dtt::dct(dct, inverted = TRUE)
 }
 
+#' Reconstruct time series
+#'
+#' Reconstruct the time series `name` using the trained recipes step `step`
+#' using the columns specified in `...` with tidy-select.
+#'
+#' May be a lossy reconstruct of the time series.
+#'
+#' @param x data frame
+#'
+#' @param name name of the time series to reconstruct (the original column name
+#' before `bake`).
+#'
+#' @param step the trained step from the recipe
+#'
+#' @param ... tidy-selection of columns to reconstruct from
+#'
 #' @export
 reconstruct <- function(x, name, step, ...) {
   x %>%

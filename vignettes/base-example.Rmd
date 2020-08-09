@@ -47,7 +47,7 @@ tsdb_recon <- tsdb_dct %>%
 set.seed(103)
 tsdb_recon %>%
   sample_n(5) %>%
-  unnest(c(ts, ts_recon, n)) %>%
+  unnest(c(ts, ts_recon, n)) %>% 
   ggplot(aes(n)) +
   geom_line(aes(y = ts, group = id), color = "red") +
   geom_line(aes(y = ts_recon, group = id), color = "blue") +
