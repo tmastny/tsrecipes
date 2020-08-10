@@ -1,6 +1,6 @@
 library(recipes)
 
-test_that("step_tff creates new columns", {
+test_that("step_fft creates new columns", {
   prices <- tsrecipes::prices
 
   prices_xf <- recipe(prices) %>%
@@ -12,7 +12,7 @@ test_that("step_tff creates new columns", {
 })
 
 
-test_that("step_tff handles multiple time series", {
+test_that("step_fft handles multiple time series", {
   prices <- tsrecipes::prices %>%
     mutate(ts2 = ts)
 
@@ -25,7 +25,7 @@ test_that("step_tff handles multiple time series", {
 })
 
 
-test_that("step_tff agrees with tff", {
+test_that("step_fft agrees with fft", {
   prices <- tsrecipes::prices
 
   prices_xf <- recipe(prices) %>%
@@ -44,7 +44,7 @@ test_that("step_tff agrees with tff", {
 })
 
 
-test_that("step_tff preserves", {
+test_that("step_fft preserves", {
   prices <- tsrecipes::prices
 
   prices_xf <- recipe(prices) %>%
