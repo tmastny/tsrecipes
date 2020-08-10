@@ -1,0 +1,122 @@
+---
+title: "discrete-cosine-transform"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{discrete-cosine-transform}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tsrecipes)
+library(tidyverse)
+```
+
+
+https://squidarth.com/rc/math/2018/06/24/fourier.html
+
+
+What is the discrete cosine transform?
+
+For *any* time series of length N, the transform is described
+by the following matrix.
+
+$$
+X_{i,j} = \cos\left( \frac{\pi}{N} * i * \left( j + \frac{1}{2} \right) \right)
+$$
+Each entry in the transformations corresponds to a cosine wave. 
+The value of that entry is the strength of that wave.
+
+```{r}
+coef <- function(i, j = 1:60) {
+  cos(pi / length(j) * i * (j + 1/2))
+}
+
+dct_mat <- tibble(
+  i = c(1, 2, 3, 5, 8, 13)
+)
+
+dct_mat %>%
+  rowwise() %>%
+  mutate(
+    coef = list(coef(i)),
+    n = list(1:60)
+  ) %>%
+  unnest(c(coef, n)) %>%
+  ggplot(aes(n, coef)) +
+  geom_line() +
+  facet_wrap(~i)
+```
+
+So if we have a time series of length 60, the first few elemenets of the
+discrete cosine transform measure the strength of the low-frequency components,
+while the later elements correspond to the high frequency components. We can
+see this in the following example:
+
+```{r}
+ts <- ethanol$ts[[1]]
+ts_dct <- tibble(
+  ts = ts,
+  dct = fdct(ts),
+  n = 1:length(ts)
+)
+```
+
+```{r}
+ts_recon <- ts_dct %>%
+  mutate(
+    dct_lf = ifelse(seq_along(dct) <= 20, dct, 0),
+    ts_lf = dtt::dct(dct_lf, inverted = TRUE),
+    dct_hf = ifelse(between(seq_along(dct), 10, 40), dct, 0),
+    ts_hf = dtt::dct(dct_hf, inverted = TRUE)
+  )
+
+ts_recon %>%
+  pivot_longer(c(ts, ts_hf, ts_lf)) %>%
+  ggplot() +
+  geom_line(aes(n, value, color = name))
+```
+
+
+Of course, you can't necessarily assume that high frequencies are irrelevant.
+It depends on the characteristics of the time series. 
+
+
+```{r}
+ts <- prices$ts[[1]]
+ts_dct <- tibble(
+  ts = ts,
+  dct = fdct(ts),
+  n = 1:length(ts)
+)
+```
+
+```{r}
+ts_recon <- ts_dct %>%
+  mutate(
+    dct_lf = ifelse(seq_along(dct) <= 20, dct, 0),
+    ts_lf = dtt::dct(dct_lf, inverted = TRUE),
+    dct_hf = ifelse(between(seq_along(dct), 40, 60), dct, 0),
+    ts_hf = dtt::dct(dct_hf, inverted = TRUE)
+  )
+
+ts_recon %>%
+  pivot_longer(c(ts, ts_hf, ts_lf)) %>%
+  ggplot() +
+  geom_line(aes(n, value, color = name))
+```
+
+This means that you either need to tune the number of frequencies keep,
+or analyze the data and make a judgment.
+ 
+
+
+
+

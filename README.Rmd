@@ -91,20 +91,19 @@ actually important, and to reduce the dimension of the features.
 Transformations are all about changing the time series to an alternative 
 representative. Think of it like the binary representation of a number:
 
-> 29 -> 11101
+> 29 <-> 11101
 
-The number is the same either way: the process is entirely reversible. 
+The number is the same either way and the process is entirely reversible. 
 But yet each representation has it's own unique properties.
 
 For time series, the fast Fourier transform and the discrete cosine transform
-are the most important. The application to time series is informed by
-prior methods in [data compression](https://en.wikipedia.org/wiki/Transform_coding#:~:text=Transform%20coding%20is%20a%20type,audio%20signals%20or%20photographic%20images.).
+are the most important. They provide
 
-The benefit of time series transformations:
-* features are uncorrelated
-* principled ways to reduce dimensions
+* uncorrelated features
+* unsupervised dimensionality reduction
 
-```{r}
+
+```{r, echo=FALSE}
 library(tsrecipes)
 library(dplyr)
 library(tidyr)
@@ -116,31 +115,13 @@ ts_dct <- tibble(
   dct = fdct(ts),
   n = 1:length(ts)
 )
-```
 
-```{r}
-ts_dct %>%
-  ggplot(aes(n, dct)) +
-  geom_line() +
-  scale_y_log10()
-```
-```{r}
 ts_dct %>%
   mutate(ts_hf = dtt::dct(if_else(abs(dct) > 100, 0, dct), inverted = TRUE)) %>%
   mutate(ts_lf = dtt::dct(if_else(abs(dct) < 50, 0, dct), inverted = TRUE)) %>%
   pivot_longer(c(-n, -dct)) %>%
   ggplot() +
   geom_line(aes(n, value, color = name))
-```
-
-```{r}
-ts_dct %>%
-  mutate(ts_hf = dtt::dct(if_else(abs(dct) > 100, 0, dct), inverted = TRUE)) %>%
-  mutate(ts_lf = dtt::dct(if_else(abs(dct) < 50, 0, dct), inverted = TRUE)) %>%
-  ggplot(aes(n)) +
-  geom_line(aes(y = ts)) +
-  geom_line(aes(y = ts_hf), color = "blue") +
-  geom_line(aes(y = ts_lf), color = "red")
 ```
 
 
@@ -157,3 +138,4 @@ original to reconstruction.
 
 Sayood, K. (2006). *Introduction to data compression*.
 
+Primer on DCT: https://squidarth.com/rc/math/2018/06/24/fourier.html

@@ -87,67 +87,18 @@ features.
 Transformations are all about changing the time series to an alternative
 representative. Think of it like the binary representation of a number:
 
-> 29 -\> 11101
+> 29 \<-\> 11101
 
-The number is the same either way: the process is entirely reversible.
-But yet each representation has it’s own unique properties.
+The number is the same either way and the process is entirely
+reversible. But yet each representation has it’s own unique properties.
 
 For time series, the fast Fourier transform and the discrete cosine
-transform are the most important. The application to time series is
-informed by prior methods in [data
-compression](https://en.wikipedia.org/wiki/Transform_coding#:~:text=Transform%20coding%20is%20a%20type,audio%20signals%20or%20photographic%20images.).
+transform are the most important. They provide
 
-The benefit of time series transformations: \* features are uncorrelated
-\* principled ways to reduce dimensions
+  - uncorrelated features
+  - unsupervised dimensionality reduction
 
-``` r
-library(tsrecipes)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-
-ts <- ethanol$ts[[1]]
-ts_dct <- tibble(
-  ts = ts,
-  dct = fdct(ts),
-  n = 1:length(ts)
-)
-```
-
-``` r
-ts_dct %>%
-  ggplot(aes(n, dct)) +
-  geom_line() +
-  scale_y_log10()
-#> Warning in self$trans$transform(x): NaNs produced
-#> Warning: Transformation introduced infinite values in continuous y-axis
-#> Warning: Removed 3 row(s) containing missing values (geom_path).
-```
-
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
-
-``` r
-ts_dct %>%
-  mutate(ts_hf = dtt::dct(if_else(abs(dct) > 100, 0, dct), inverted = TRUE)) %>%
-  mutate(ts_lf = dtt::dct(if_else(abs(dct) < 50, 0, dct), inverted = TRUE)) %>%
-  pivot_longer(c(-n, -dct)) %>%
-  ggplot() +
-  geom_line(aes(n, value, color = name))
-```
-
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
-
-``` r
-ts_dct %>%
-  mutate(ts_hf = dtt::dct(if_else(abs(dct) > 100, 0, dct), inverted = TRUE)) %>%
-  mutate(ts_lf = dtt::dct(if_else(abs(dct) < 50, 0, dct), inverted = TRUE)) %>%
-  ggplot(aes(n)) +
-  geom_line(aes(y = ts)) +
-  geom_line(aes(y = ts_hf), color = "blue") +
-  geom_line(aes(y = ts_lf), color = "red")
-```
-
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ## Feature Selection
 
@@ -160,3 +111,5 @@ comparing original to reconstruction.
 ## References
 
 Sayood, K. (2006). *Introduction to data compression*.
+
+Primer on DCT: <https://squidarth.com/rc/math/2018/06/24/fourier.html>
