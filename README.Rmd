@@ -9,7 +9,8 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  message = FALSE
 )
 ```
 
@@ -32,6 +33,25 @@ tsrecipes also provides recipe steps for transformations found in the
 And features from the Python package [tsfresh](https://github.com/blue-yonder/tsfresh),
 although at the moment it contains many more transformations. 
 
+
+tsrecipes supports three categories of time series preprocessing:
+
+* time series transformations
+* time series clustering
+* time series feature extraction 
+
+The goal of time series preprocessing is to support unsuperived and supervised
+machine learning. Either time series classification, where you want to predict
+the label associated with a time series (or set of time series).
+
+This also supports generalized feature enigneering for machine learning models.
+Features into machine learning are often implicitly aggregated over 
+a period of time. For example, maybe a feature is the number of hours watched in 
+a month, or total time spent visiting a website. But you can lose a lot of
+information by only considering the aggregate total. Treating features as a 
+time series may increase the predictive power of the model.
+
+
 ## Installation
 
 You can install tsrecipes with:
@@ -41,12 +61,86 @@ You can install tsrecipes with:
 devtools::install_github("tmastny/tsrecipes")
 ```
 
-## Feature Extraction
+## Time series preprocessing
+
+Why do we need time series preprocessing in the first place? 
+You could each entry of the time series a feature:
+
+```{r, echo=FALSE}
+library(tsrecipes)
+library(dplyr)
+prices %>%
+  select(class, ts) %>%
+  rowwise() %>%
+  mutate(ts = list(setNames(ts, 1:60))) %>%
+  tidyr::unnest_wider(ts) %>%
+  select(class, `1`:`5`)
+```
+
+
+Raw time series make poor features, since they are typically high dimensional. 
+And even if you have a model that handles high dimensional data, 
+the important information of the time series might be the overall trend 
+or seasonality: not the raw value of any particular day (see [autocorrelation](https://otexts.com/fpp3/acf.html)).
+
+Then the goal of preprocessing is to find qualities of the time series that are 
+actually important, and to reduce the dimension of the features.
+
+## Transformations
+
+Transformations are all about changing the time series to an alternative 
+representative. Think of it like the binary representation of a number:
+
+> 29 -> 11101
+
+The number is the same either way: the process is entirely reversible. 
+But yet each representation has it's own unique properties.
+
+For time series, the fast Fourier transform and the discrete cosine transform
+are the most important. The application to time series is informed by
+prior methods in [data compression](https://en.wikipedia.org/wiki/Transform_coding#:~:text=Transform%20coding%20is%20a%20type,audio%20signals%20or%20photographic%20images.).
+
+The benefit of time series transformations:
+* features are uncorrelated
+* principled ways to reduce dimensions
 
 ```{r}
 library(tsrecipes)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 
+ts <- ethanol$ts[[1]]
+ts_dct <- tibble(
+  ts = ts,
+  dct = fdct(ts),
+  n = 1:length(ts)
+)
+```
 
+```{r}
+ts_dct %>%
+  ggplot(aes(n, dct)) +
+  geom_line() +
+  scale_y_log10()
+```
+```{r}
+ts_dct %>%
+  mutate(ts_hf = dtt::dct(if_else(abs(dct) > 100, 0, dct), inverted = TRUE)) %>%
+  mutate(ts_lf = dtt::dct(if_else(abs(dct) < 50, 0, dct), inverted = TRUE)) %>%
+  pivot_longer(c(-n, -dct)) %>%
+  ggplot() +
+  geom_line(aes(n, value, color = name))
+```
+
+```{r}
+ts_dct %>%
+  mutate(ts_hf = dtt::dct(if_else(abs(dct) > 100, 0, dct), inverted = TRUE)) %>%
+  mutate(ts_lf = dtt::dct(if_else(abs(dct) < 50, 0, dct), inverted = TRUE)) %>%
+  ggplot(aes(n)) +
+  geom_line(aes(y = ts)) +
+  geom_line(aes(y = ts_hf), color = "blue") +
+  geom_line(aes(y = ts_lf), color = "red")
 ```
 
 

@@ -4,7 +4,7 @@ library(dplyr)
 library(tidyr)
 
 ts <- read_csv(
-  "SharePriceIncrease/SharePriceIncrease_TRAIN.arff", comment = "@",
+  "data-raw/SharePriceIncrease_TRAIN.arff", comment = "@",
   col_names = FALSE
 )
 
