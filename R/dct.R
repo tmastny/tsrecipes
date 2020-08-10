@@ -59,13 +59,17 @@ prep.step_dct <- function(x, training, info = NULL) {
     vars <- dct_transform(training[[col_name]]) %>%
       colVars()
 
-    top_k <- sort(vars, decreasing = TRUE)[1:k] %>%
-      min()
+    indices <- 1:length(vars)
+    if (!is.null(k)) {
+      top_k <- sort(vars, decreasing = TRUE)[1:k] %>%
+        min()
 
+      indices <- which(vars >= top_k)
+    }
 
     coefs[[col_name]] <- list(
       .length = length(vars),
-      .indices = which(vars >= top_k)
+      .indices = indices
     )
   }
 
