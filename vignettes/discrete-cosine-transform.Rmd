@@ -31,11 +31,15 @@ by the following matrix.
 $$
 X_{i,j} = \cos\left( \frac{\pi}{N} * i * \left( j + \frac{1}{2} \right) \right)
 $$
+
 Each entry in the transformations corresponds to a cosine wave. 
 The value of that entry is the strength of that wave.
 
+Matrix multiplication: https://mathinsight.org/matrix_vector_multiplication
+
+
 ```{r}
-coef <- function(i, j = 1:60) {
+cosine <- function(i, j = 1:60) {
   cos(pi / length(j) * i * (j + 1/2))
 }
 
@@ -46,11 +50,11 @@ dct_mat <- tibble(
 dct_mat %>%
   rowwise() %>%
   mutate(
-    coef = list(coef(i)),
+    cosine = list(cosine(i)),
     n = list(1:60)
   ) %>%
-  unnest(c(coef, n)) %>%
-  ggplot(aes(n, coef)) +
+  unnest(c(cosine, n)) %>%
+  ggplot(aes(n, cosine)) +
   geom_line() +
   facet_wrap(~i)
 ```
@@ -82,6 +86,43 @@ ts_recon %>%
   pivot_longer(c(ts, ts_hf, ts_lf)) %>%
   ggplot() +
   geom_line(aes(n, value, color = name))
+```
+
+```{r}
+cosine1 <- ts_recon %>%
+  rowwise() %>%
+  mutate(
+    cosine = list(cosine(n, j = 1:1751)),
+    cosine_scale = list(dct * cosine),
+    i = list(1:1751)
+  ) %>%
+  filter(n %in% dct_mat$i) %>%
+  unnest(c(i, cosine, cosine_scale)) %>%
+  ggplot() +
+  geom_line(aes(i, cosine)) +
+  facet_wrap(~n) +
+  labs(x = NULL, y = NULL)
+```
+
+```{r}
+cosine1_scaled <- ts_recon %>%
+  rowwise() %>%
+  mutate(
+    cosine = list(cosine(n, j = 1:1751)),
+    cosine_scale = list(dct * cosine),
+    i = list(1:1751)
+  ) %>%
+  filter(n %in% dct_mat$i) %>%
+  unnest(c(i, cosine, cosine_scale)) %>%
+  ggplot() +
+  geom_line(aes(i, cosine_scale)) +
+  facet_wrap(~n) +
+  labs(x = NULL, y = NULL)
+```
+
+```{r}
+library(patchwork)
+cosine1 / cosine1_scaled
 ```
 
 
