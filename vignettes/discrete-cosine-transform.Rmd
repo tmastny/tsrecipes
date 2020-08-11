@@ -51,7 +51,8 @@ Therefore, the discrete cosine transform offers
 
 Sid Shanker provides an intuitive [introduction](https://squidarth.com/rc/math/2018/06/24/fourier.html)
 to the discrete cosine transform in the context of data compression. 
-Let's see how we can understand by way of time series.
+In this article, I'll demonstrate how we can apply the discrete cosine transform
+to a single time series.
 
 ### Time series as wiggles
 
@@ -119,7 +120,7 @@ we can very precisely define what wiggliness means.
 
 Imagine a sequence of cosine waves, with increasing wiggles. This sequence
 needs to be the same length as the time series, 
-but I'll only show a few to show what I mean.
+but I'll only show a few to to demonstrate.
 
 ```{r}
 cosine <- function(i, j = 1:60) {
@@ -151,7 +152,8 @@ As we saw in the previous example, there are cases where we can add up wiggles
 to get back the original time series. But these cosine waves won't do, 
 because each only ranges from -1 to 1. Our time series ranged from -1 to 2.
 
-The discrete cosine transforms provides the amplitudes of this cosine sequence.
+The discrete cosine transforms provides the amplitudes for this cosine sequence,
+for any time series.
 We can multiple the waves by the amplitudes to see how much each wave
 contributes to the reconstruction.
 
@@ -229,5 +231,11 @@ ts_recon %>%
 
 in this time series, it's the high frequency green time series that's better a
 better reconstruction of the original.
- 
+
+Dimensionality reduction with discrete cosine transform depends on the 
+characteristics of the time series, so you either need to use your judgment
+or tune the number of coefficients selected.
+
+
+
 
