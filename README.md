@@ -57,7 +57,7 @@ devtools::install_github("tmastny/tsrecipes")
 You want to apply time series preprocessing when you have a set of
 related time series:
 
-<img src="ts-set.svg" width="500px" style="display: block; margin: auto;" />
+<img src="ts-set.svg" width="400px" style="display: block; margin: auto;" />
 
 Each entry of the set may belong to a class or label. The entries may
 also be multivariate time series.
