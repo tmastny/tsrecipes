@@ -24,7 +24,7 @@ package and [tidymodels](https://www.tidymodels.org/) framework for preprocessin
 time series into features for machine learning. 
 
 This package is modeled after the [textrecipes](https://github.com/tidymodels/textrecipes):
-both packages transform a sequence of data (words and time series).
+both packages transform a sequence of data (words vs. time series).
 
 In addition to the unique addition of the discrete cosine transform,
 tsrecipes also provides recipe steps for transformations found in the
@@ -34,7 +34,7 @@ And features from the Python package [tsfresh](https://github.com/blue-yonder/ts
 although at the moment it contains many more transformations. 
 
 
-tsrecipes supports three categories of time series preprocessing:
+tsrecipes supports three categories of time series feature engineering:
 
 * time series transformations
 * time series clustering
@@ -62,6 +62,25 @@ devtools::install_github("tmastny/tsrecipes")
 ```
 
 ## Time series preprocessing
+
+You want to apply time series preprocessing when you have a set of related
+time series:
+
+```{r, echo=FALSE, out.width="600px", fig.align='center'}
+# https://docs.google.com/drawings/d/1RxbpkNP77ysvOCFlzErmRi4630Xfq5thLq3HsTLO6uk/edit
+knitr::include_graphics("ts-set.svg")
+```
+
+Each entry of the set may belong to a class or label. The entries may also be
+multivariate time series.
+
+
+
+In general, it's not feasible or recommended to use the raw time series values
+as classification or clustering features.
+
+![](ts-set.svg){width=600px}
+
 
 Why do we need time series preprocessing in the first place? 
 You could each entry of the time series a feature:

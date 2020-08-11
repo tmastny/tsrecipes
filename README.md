@@ -14,7 +14,7 @@ time series into features for machine learning.
 
 This package is modeled after the
 [textrecipes](https://github.com/tidymodels/textrecipes): both packages
-transform a sequence of data (words and time series).
+transform a sequence of data (words vs. time series).
 
 In addition to the unique addition of the discrete cosine transform,
 tsrecipes also provides recipe steps for transformations found in the
@@ -24,7 +24,7 @@ And features from the Python package
 [tsfresh](https://github.com/blue-yonder/tsfresh), although at the
 moment it contains many more transformations.
 
-tsrecipes supports three categories of time series preprocessing:
+tsrecipes supports three categories of time series feature engineering:
 
   - time series transformations
   - time series clustering
@@ -53,6 +53,19 @@ devtools::install_github("tmastny/tsrecipes")
 ```
 
 ## Time series preprocessing
+
+You want to apply time series preprocessing when you have a set of
+related time series:
+
+<img src="ts-set.svg" width="600px" style="display: block; margin: auto;" />
+
+Each entry of the set may belong to a class or label. The entries may
+also be multivariate time series.
+
+In general, it’s not feasible or recommended to use the raw time series
+values as classification or clustering features.
+
+![](ts-set.svg)
 
 Why do we need time series preprocessing in the first place? You could
 each entry of the time series a feature:
@@ -98,7 +111,7 @@ transform are the most important. They provide
   - uncorrelated features
   - unsupervised dimensionality reduction
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ## Feature Selection
 
