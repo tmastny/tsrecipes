@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
@@ -20,49 +22,40 @@ library(tidyverse)
 ```
 
 
-https://squidarth.com/rc/math/2018/06/24/fourier.html
+The primary application of the discrete cosine transform is in data compression:
+
+> data compression is the art or science of representing information in a 
+  more compact form. 
+  - *Sayood, K. Introduction to Data Compression*
+  
+There's a natural connection here to machine learning:
+we often way to represent high-dimensional features with fewer dimensions, 
+to save memory and computing and improve accuracy. 
+
+Statistical techniques like Principle Component Analysis (PCA) can even
+be thought of as a [data compression](http://www.statistics4u.info/fundstat_eng/cc_pca_compress.html)
+algorithm.
+
+In data compression, correlation implies redundant information. 
+Coding that removes or transforms these redundancies can also be beneficial
+to machine learning, where highly correlated features, such values in a time
+series, may harm accuracy.
+
+Therefore, the discrete cosine transform offers
+
+* uncorrelated features
+* unsupervised dimensionality reduction
 
 
-What is the discrete cosine transform?
+## What is the discrete cosine transform?
 
-For *any* time series of length N, the transform is described
-by the following matrix.
+Sid Shanker provides an intuitive [introduction](https://squidarth.com/rc/math/2018/06/24/fourier.html)
+to the discrete cosine transform in the context of data compression. 
+Let's see how we can understand by way of time series.
 
-$$
-X_{i,j} = \cos\left( \frac{\pi}{N} * i * \left( j + \frac{1}{2} \right) \right)
-$$
+### Time series as wiggles
 
-Each entry in the transformations corresponds to a cosine wave. 
-The value of that entry is the strength of that wave.
-
-Matrix multiplication: https://mathinsight.org/matrix_vector_multiplication
-
-
-```{r}
-cosine <- function(i, j = 1:60) {
-  cos(pi / length(j) * i * (j + 1/2))
-}
-
-dct_mat <- tibble(
-  i = c(1, 2, 3, 5, 8, 13)
-)
-
-dct_mat %>%
-  rowwise() %>%
-  mutate(
-    cosine = list(cosine(i)),
-    n = list(1:60)
-  ) %>%
-  unnest(c(cosine, n)) %>%
-  ggplot(aes(n, cosine)) +
-  geom_line() +
-  facet_wrap(~i)
-```
-
-So if we have a time series of length 60, the first few elemenets of the
-discrete cosine transform measure the strength of the low-frequency components,
-while the later elements correspond to the high frequency components. We can
-see this in the following example:
+Let's think about the *wiggliness* of time series.
 
 ```{r}
 ts <- ethanol$ts[[1]]
@@ -78,7 +71,7 @@ ts_recon <- ts_dct %>%
   mutate(
     dct_lf = ifelse(seq_along(dct) <= 20, dct, 0),
     ts_lf = dtt::dct(dct_lf, inverted = TRUE),
-    dct_hf = ifelse(between(seq_along(dct), 10, 40), dct, 0),
+    dct_hf = ifelse(between(seq_along(dct), 20, 40), dct, 0),
     ts_hf = dtt::dct(dct_hf, inverted = TRUE)
   )
 
@@ -86,6 +79,50 @@ ts_recon %>%
   pivot_longer(c(ts, ts_hf, ts_lf)) %>%
   ggplot() +
   geom_line(aes(n, value, color = name))
+```
+
+The original time series (in red) can be thought of as a combination of different
+wiggles. The blue line represents the *low-frequency* wiggles: these are wiggles
+that go up and down relatively slowly.
+
+The red line represents *high-frequency* wiggles, the wiggles that change 
+quickly and sharply. 
+
+If we add those two together
+```r
+ts_recon = ts_hf + ts_lf
+```
+
+we can reconstruct the general shape of the original time series.
+
+```{r}
+ts_recon %>%
+  mutate(ts_recon = ts_hf + ts_lf) %>%
+  pivot_longer(c(ts, ts_recon)) %>%
+  ggplot() +
+  geom_line(aes(n, value, color = name))
+```
+
+Except there's a major difference: I decreased the dimension of the time series
+from 1751 to **40**. If I would have included all the dimensions, I would have
+reproduced the time series exactly.
+
+The dimensional reduction is the magic of the discrete cosine transform. 
+It allows us to remove dimensions that don't contribute to the overall "shape"
+of the time series. 
+
+### Define wiggliness
+
+Thanks to trigonometry (SOH CAH TOA) and 
+[Joseph Fourier](https://en.wikipedia.org/wiki/Joseph_Fourier),
+we can very precisely define what wiggliness means.
+
+Imagine a sequence of cosine waves, with increasing wiggles. 
+
+```{r}
+cosine <- function(i, j = 1:60) {
+  cos(pi / length(j) * i * (j + 1/2))
+}
 ```
 
 ```{r}
@@ -102,7 +139,11 @@ cosine1 <- ts_recon %>%
   geom_line(aes(i, cosine)) +
   facet_wrap(~n) +
   labs(x = NULL, y = NULL)
+
+cosine1
 ```
+
+
 
 ```{r}
 cosine1_scaled <- ts_recon %>%
@@ -124,6 +165,9 @@ cosine1_scaled <- ts_recon %>%
 library(patchwork)
 cosine1 / cosine1_scaled
 ```
+
+### Wiggles waver between time series
+
 
 
 Of course, you can't necessarily assume that high frequencies are irrelevant.
@@ -157,7 +201,4 @@ ts_recon %>%
 This means that you either need to tune the number of frequencies keep,
 or analyze the data and make a judgment.
  
-
-
-
 
