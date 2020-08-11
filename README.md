@@ -57,15 +57,13 @@ devtools::install_github("tmastny/tsrecipes")
 You want to apply time series preprocessing when you have a set of
 related time series:
 
-<img src="ts-set.svg" width="600px" style="display: block; margin: auto;" />
+<img src="ts-set.svg" width="500px" style="display: block; margin: auto;" />
 
 Each entry of the set may belong to a class or label. The entries may
 also be multivariate time series.
 
 In general, it’s not feasible or recommended to use the raw time series
 values as classification or clustering features.
-
-![](ts-set.svg)
 
 Why do we need time series preprocessing in the first place? You could
 each entry of the time series a feature:

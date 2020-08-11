@@ -66,7 +66,7 @@ devtools::install_github("tmastny/tsrecipes")
 You want to apply time series preprocessing when you have a set of related
 time series:
 
-```{r, echo=FALSE, out.width="600px", fig.align='center'}
+```{r, echo=FALSE, out.width="500px", fig.align='center'}
 # https://docs.google.com/drawings/d/1RxbpkNP77ysvOCFlzErmRi4630Xfq5thLq3HsTLO6uk/edit
 knitr::include_graphics("ts-set.svg")
 ```
@@ -74,13 +74,8 @@ knitr::include_graphics("ts-set.svg")
 Each entry of the set may belong to a class or label. The entries may also be
 multivariate time series.
 
-
-
 In general, it's not feasible or recommended to use the raw time series values
 as classification or clustering features.
-
-![](ts-set.svg){width=600px}
-
 
 Why do we need time series preprocessing in the first place? 
 You could each entry of the time series a feature:
