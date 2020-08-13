@@ -1,0 +1,130 @@
+---
+title: "dtw2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dtw2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tsrecipes)
+library(tidyverse)ˇ
+library(dtwclust)
+library(patchwork)
+```
+
+To cluster, we need to measure the distance between every member of the group.
+Typically we think of [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance#:~:text=In%20mathematics%2C%20the%20Euclidean%20distance,metric%20as%20the%20Pythagorean%20metric.):
+the length of a straight line between to points.
+
+This distance pops up all the time in data science,
+usually called Mean Squared Error (MSE) or 
+it's counterpart Root Mean Squared Error (RMSE). 
+It's used to measure regression error in machine learning,
+and assess the accuracy of a [time series forecast](https://otexts.com/fpp3/accuracy.html).
+
+A straight line between two points isn't always the possible. 
+In a city grid, we are constrained by the blocks, so the distance
+between two points is called the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry).
+
+```{r}
+knitr::include_graphics("283px-Manhattan_distance.svg.png")
+```
+
+As I'll demonstrate in the next section, time series need a special distance metric
+too. The most common is called Dynamic Time Warping.
+
+## Time Series Distance
+
+Plotted below are three time series. I've plotted blue and green to both
+overlap red. Which do you think is "closer" in distance, intuitively?
+
+```{r}
+eth_sample <- ethanol %>%
+  filter(id %in% c(1, 2, 53))
+
+plot_overlap <- function(ids, x) {
+  group_colors <- c(`1` = "#F8766D", `2` = "#619CFF")
+  if (any(ids != c(1, 2))) {
+    group_colors <- c(`1` = "#F8766D", `53` = "#00BA38")
+  }
+  
+  x %>%
+    filter(id %in% ids) %>%
+    mutate(n = list(1:1751)) %>%
+    unnest(c(ts, n)) %>%
+    ggplot(aes(n, ts, color = as.factor(id), group = id)) +
+    geom_line(show.legend = FALSE) +
+    scale_color_manual(values = group_colors) +
+    labs(x = NULL, y = NULL)
+}
+
+plots <- list(c(1, 2), c(1, 53)) %>%
+  map(plot_overlap, eth_sample)
+
+plots[[1]] / plots[[2]]
+```
+
+I think it's blue: blue and red both has an early dip after 750. 
+Around 1000 they both have a slim, deep trough. The major difference is that
+blue seems shifted to the left.
+
+Green is all wrong: where red dips around 750, green has a bump. 
+And the dip after 1000 is wider and shallower. 
+
+The Euclidean difference tells a different story. 
+Red is actually closer to green (has a small distance metric).
+
+```{r}
+eth_sample$ts %>% 
+  set_names(c("red", "blue", "green")) %>%
+  simplify2array() %>% t() %>%
+  dist()
+```
+
+## Dynamic Time Warping
+
+To capture our intuition about the similarity of red and blue,
+we need a new metric. This metric can't simply measure point-to-point of the
+time series. As we saw, blue is shifted to the left, even though the shape
+is really similar. We need *time warping*!
+
+In the visualizations below^[https://www.r-bloggers.com/time-series-matching-with-dynamic-time-warping/], 
+you can see how dynamic time warping stretches
+(warps) time to match up nearby points. 
+
+```{r}
+dtw::dtwPlotTwoWay(ethdtw, xts = eth_sample$ts[[1]], yts = eth_sample$ts[[2]])
+```
+
+When comparing red to green, there is a lot more warping going on to match up 
+points (as measured by the light gray concentric lines between the series).
+
+```{r}
+dtw::dtwPlotTwoWay(ethdtw, xts = eth_sample$ts[[1]], yts = eth_sample$ts[[3]])
+```
+
+
+
+```{r}
+eth_sample$ts %>% 
+  set_names(c(1, 2, 53)) %>%
+  simplify2array() %>% t() %>%
+  dist(method = "DTW")
+```
+
+
+## Clustering Time Series
+
+Here's a good introudction to clustering. 
+https://uc-r.github.io/hc_clustering
+
+

@@ -1,0 +1,42 @@
+---
+title: "dynamic-time-warping"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dynamic-time-warping}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(tsrecipes)
+library(tidyverse)
+library(dtwclust)
+```
+
+```{r}
+ethanol
+```
+
+
+```{r}
+if (!file.exists("ethclust.RDS")) {
+  ethclust <- tsclust(ethanol$ts, k = 3)
+  saveRDS(ethclust, "ethclust.RDS")
+}
+
+ethclust <- readRDS("ethclust.RDS")
+```
+
+```{r}
+ethclust
+```
+
+
+
