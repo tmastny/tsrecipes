@@ -144,7 +144,7 @@ dtw::dtw(eth_sample$ts[[1]], eth_sample$ts[[3]]) %>%
   dtw::dtwPlotTwoWay(xts = eth_sample$ts[[1]], yts = eth_sample$ts[[3]])
 ```
 
-The ˇdissimilarity between red and green is reflected when we
+The dissimilarity between red and green is reflected when we
 calculate the dynamic time warping distance.
 
 ```{r}
@@ -157,7 +157,7 @@ eth_sample$ts %>%
 
 ## Clustering Time Series
 
-Here's a good introudction to clustering. 
+Here's a good introudction to clustering. ˇ
 https://uc-r.github.io/hc_clustering
 
 
