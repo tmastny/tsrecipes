@@ -10,13 +10,15 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
 )
 ```
 
 ```{r setup}
 library(tsrecipes)
-library(tidyverse)ˇ
+library(tidyverse)
 library(dtwclust)
 library(patchwork)
 ```
@@ -31,6 +33,32 @@ it's counterpart Root Mean Squared Error (RMSE).
 It's used to measure regression error in machine learning,
 and assess the accuracy of a [time series forecast](https://otexts.com/fpp3/accuracy.html).
 
+```{r, echo=FALSE, fig.cap="The distance between the forecast and the actual model is calculated by the Euclidean distance between corresponding points in the time series and the forecasts. Evaluation of time series models is typically calculated using Euclidean distance "}
+library(fpp3)
+library(tsibble)
+library(tsibbledata)
+
+aus_train <- tsibbledata::aus_production %>% filter_index("1992 Q1" ~ "2006 Q4")
+
+beer_fit <- aus_train %>%
+  model(
+    Mean = MEAN(Beer),
+    `Naïve` = NAIVE(Beer),
+    `Seasonal naïve` = SNAIVE(Beer)
+  )
+
+beer_fc <- beer_fit %>% forecast(h=14)
+
+beer_fc %>%
+  autoplot(filter_index(aus_train, "2007 Q1" ~ .), level = NULL) +
+  autolayer(filter_index(aus_production, "2007 Q1" ~ .), color = "black") +
+  labs(x = NULL, y = NULL) +
+  guides(colour=guide_legend(title="Forecast"))
+```
+
+https://otexts.com/fpp3/simple-methods.html
+
+
 A straight line between two points isn't always the possible. 
 In a city grid, we are constrained by the blocks, so the distance
 between two points is called the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry).
@@ -39,8 +67,8 @@ between two points is called the [Manhattan distance](https://en.wikipedia.org/w
 knitr::include_graphics("283px-Manhattan_distance.svg.png")
 ```
 
-As I'll demonstrate in the next section, time series need a special distance metric
-too. The most common is called Dynamic Time Warping.
+As I'll demonstrate in the next section that time series also
+need a special distance metric. The most common is called Dynamic Time Warping.
 
 ## Time Series Distance
 
@@ -80,8 +108,9 @@ blue seems shifted to the left.
 Green is all wrong: where red dips around 750, green has a bump. 
 And the dip after 1000 is wider and shallower. 
 
-The Euclidean difference tells a different story. 
-Red is actually closer to green (has a small distance metric).
+The Euclidean distance tells a different story. 
+Red is actually closer to green, because it has a smaller distance metric 
+(9.78 vs 9.83).
 
 ```{r}
 eth_sample$ts %>% 
@@ -93,8 +122,9 @@ eth_sample$ts %>%
 ## Dynamic Time Warping
 
 To capture our intuition about the similarity of red and blue,
-we need a new metric. This metric can't simply measure point-to-point of the
-time series. As we saw, blue is shifted to the left, even though the shape
+we need a new metric. This metric can't simply measure the point-to-point 
+distance between the series.
+As we saw, blue is shifted to the left, even though the shape
 is really similar. We need *time warping*!
 
 In the visualizations below^[https://www.r-bloggers.com/time-series-matching-with-dynamic-time-warping/], 
@@ -102,21 +132,24 @@ you can see how dynamic time warping stretches
 (warps) time to match up nearby points. 
 
 ```{r}
-dtw::dtwPlotTwoWay(ethdtw, xts = eth_sample$ts[[1]], yts = eth_sample$ts[[2]])
+dtw::dtw(eth_sample$ts[[1]], eth_sample$ts[[2]]) %>%
+  dtw::dtwPlotTwoWay(xts = eth_sample$ts[[1]], yts = eth_sample$ts[[2]])
 ```
 
 When comparing red to green, there is a lot more warping going on to match up 
 points (as measured by the light gray concentric lines between the series).
 
 ```{r}
-dtw::dtwPlotTwoWay(ethdtw, xts = eth_sample$ts[[1]], yts = eth_sample$ts[[3]])
+dtw::dtw(eth_sample$ts[[1]], eth_sample$ts[[3]]) %>%
+  dtw::dtwPlotTwoWay(xts = eth_sample$ts[[1]], yts = eth_sample$ts[[3]])
 ```
 
-
+The ˇdissimilarity between red and green is reflected when we
+calculate the dynamic time warping distance.
 
 ```{r}
 eth_sample$ts %>% 
-  set_names(c(1, 2, 53)) %>%
+  set_names(c("red", "blue", "green")) %>%
   simplify2array() %>% t() %>%
   dist(method = "DTW")
 ```
