@@ -31,11 +31,47 @@ if (!file.exists("ethclust.RDS")) {
   saveRDS(ethclust, "ethclust.RDS")
 }
 
-ethclust <- readRDS("ethclust.RDS")
+clusters <- readRDS("ethclust.RDS")
 ```
 
 ```{r}
-ethclust
+clusters@cluster
+```
+
+```{r}
+all(
+  predict(clusters, ethanol$ts) == clusters@cluster
+)
+```
+
+```{r}
+
+output_cl <- list(dtwclust_ts = clusters@cluster)
+
+output_cl <- tibble()
+output_cl[["dtwclust_ts"]] <- clusters@cluster
+```
+
+```{r}
+output_cl %>%
+  imap(~tibble::tibble(!!.y := .x)) %>%
+  bind_cols(ethanol, .)
+```
+
+```{r}
+tibble(!!!output_cl)
+```
+
+
+
+
+
+```{r}
+fn <- function(a, b) {
+  print(paste0(a, " ", b))
+}
+
+do.call(fn, c(list(a = 1), list(b = 2)))
 ```
 
 

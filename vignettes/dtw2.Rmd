@@ -157,7 +157,10 @@ eth_sample$ts %>%
 
 ## Clustering Time Series
 
-Here's a good introudction to clustering. ˇ
+Here's a good introudction to clustering.
 https://uc-r.github.io/hc_clustering
+
+
+
 
 
