@@ -27,4 +27,6 @@ Imports:
     recipes,
     dtt,
     tibble,
-    dtwclust
+    dtwclust,
+    dplyr,
+    purrr

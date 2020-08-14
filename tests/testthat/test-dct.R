@@ -1,4 +1,7 @@
 library(recipes)
+library(dplyr)
+library(purrr)
+library(stringr)
 
 test_that("step_dct agrees with dct", {
   prices <- tsrecipes::prices
@@ -11,7 +14,7 @@ test_that("step_dct agrees with dct", {
     bake(prices)
 
   ts1_step_dct <- prices_xf %>%
-    select(starts_with("ts")) %>%
+    select(starts_with("dct")) %>%
     .[1, ] %>%
     unlist(use.names = FALSE)
 

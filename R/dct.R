@@ -99,7 +99,7 @@ bake.step_dct <- function(object, new_data, ...) {
   dct_cols <- list()
   for (col_name in names(coefs)) {
     dct <- dct_transform(new_data[[col_name]])
-    colnames(dct) <- paste0(col_name, ".", 1:ncol(dct))
+    colnames(dct) <- paste0("dct_", 1:ncol(dct), "_", col_name)
 
     compressed_dct <- dct[, coefs[[col_name]]$.indices]
     dct_cols[[col_name]] <- compressed_dct

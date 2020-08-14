@@ -1,5 +1,3 @@
-library(recipes)
-
 test_that("step_fft agrees with fft", {
   prices <- tsrecipes::prices
 

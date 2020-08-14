@@ -1,26 +1,3 @@
-library(recipes)
-
-steps <- list(
-  dct = list(name = "dct", step = step_dct, ncol = 4),
-  fft = list(name = "fft", step = step_fft, ncol = 8),
-  dtw = list(name = "dtw", step = step_dtw, ncol = 1)
-)
-
-step_iterator <- function(x, steps, ...) {
-  xfs <- steps
-
-  for (step in steps) {
-    xf <- recipe(x) %>%
-      step$step(...) %>%
-      prep() %>%
-      bake(prices)
-
-    xfs[[step$name]]$data <- xf
-  }
-
-  xfs
-}
-
 test_that("steps work", {
   xfs <- step_iterator(tsrecipes::prices, steps, ts)
 
@@ -47,6 +24,6 @@ test_that("steps preserve works", {
   xfs <- step_iterator(tsrecipes::prices, steps, ts, preserve = TRUE)
 
   for (xf in xfs) {
-    expect_true("ts" %in% !!names(xf))
+    expect_true("ts" %in% !!names(xf$data))
   }
 })
