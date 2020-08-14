@@ -19,7 +19,6 @@ test_that("transform steps work with multiple time series", {
   }
 })
 
-
 test_that("steps preserve works", {
   xfs <- step_iterator(tsrecipes::prices, steps, ts, preserve = TRUE)
 

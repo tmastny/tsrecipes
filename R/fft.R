@@ -5,10 +5,6 @@ step_fft <- function(
   role = "predictor",
   trained = FALSE,
   k = 4,
-  # TODO: remove fns option. I think it makes sense to
-  #       always convert to Re/Im (for reconstruction)
-  #       If someone wants to remove in a later step, that's up to them.
-  fns = list(Re = Re, Im = Im),
   dct = TRUE,
   preserve = FALSE,
   series = NULL,
@@ -25,7 +21,6 @@ step_fft <- function(
       trained = trained,
       role = role,
       k = k,
-      fns = fns,
       preserve = preserve,
       series = series,
       skip = skip,
@@ -34,14 +29,13 @@ step_fft <- function(
   )
 }
 
-step_fft_new <- function(terms, role, trained, k, fns, preserve, series, skip, id) {
+step_fft_new <- function(terms, role, trained, k, preserve, series, skip, id) {
   step(
     subclass = "fft",
     terms = terms,
     role = role,
     trained = trained,
     k = k,
-    fns = fns,
     preserve = preserve,
     series = series,
     skip = skip,
@@ -58,7 +52,6 @@ prep.step_fft <- function(x, training, info = NULL) {
     trained = TRUE,
     role = x$role,
     k = x$k,
-    fns = x$fns,
     preserve = x$preserve,
     series = col_names,
     skip = x$skip,
@@ -66,7 +59,7 @@ prep.step_fft <- function(x, training, info = NULL) {
   )
 }
 
-ttf_transform <- function(l, name, k, fns) {
+ttf_transform <- function(l, name, k) {
   tff_mat <- l %>%
     simplify2array() %>%
     mvfft() %>%
@@ -88,7 +81,7 @@ bake.step_fft <- function(object, new_data, ...) {
   col_names <- object$series
 
   tff_cols <- new_data[, col_names] %>%
-    purrr::imap_dfc(ttf_transform, object$k, object$fns)
+    purrr::imap_dfc(ttf_transform, object$k)
 
   if (!object$preserve) {
     new_data[, col_names] <- NULL
