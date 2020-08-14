@@ -1,3 +1,9 @@
+```{r setup}
+library(tsrecipes)
+library(tidyverse)
+library(dtwclust)
+library(patchwork)
+```
 
 To cluster, we need to measure the distance between every member of the group.
 Typically we think of [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance#:~:text=In%20mathematics%2C%20the%20Euclidean%20distance,metric%20as%20the%20Pythagorean%20metric.):

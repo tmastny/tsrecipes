@@ -67,7 +67,7 @@ between two points is called the [Manhattan distance](https://en.wikipedia.org/w
 knitr::include_graphics("283px-Manhattan_distance.svg.png")
 ```
 
-As I'll demonstrate in the next section that time series also
+As I'll demonstrate in the next section, time series also
 need a special distance metric. The most common is called Dynamic Time Warping.
 
 ## Time Series Distance
