@@ -1,17 +1,5 @@
 library(recipes)
 
-test_that("step_dct works", {
-  prices <- tsrecipes::prices
-
-  prices_xf <- recipe(prices) %>%
-    step_dct(ts) %>%
-    prep() %>%
-    bake(prices)
-
-  expect_equal(dim(prices_xf), c(965, 6))
-  expect_true(any(str_detect(names(prices_xf), "ts.")))
-})
-
 test_that("step_dct agrees with dct", {
   prices <- tsrecipes::prices
 

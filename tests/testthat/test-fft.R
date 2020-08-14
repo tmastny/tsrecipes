@@ -1,30 +1,5 @@
 library(recipes)
 
-test_that("step_fft creates new columns", {
-  prices <- tsrecipes::prices
-
-  prices_xf <- recipe(prices) %>%
-    step_fft(ts) %>%
-    prep() %>%
-    bake(prices)
-
-  expect_equal(dim(prices_xf), c(965, 10))
-})
-
-
-test_that("step_fft handles multiple time series", {
-  prices <- tsrecipes::prices %>%
-    mutate(ts2 = ts)
-
-  prices_xf <- recipe(prices) %>%
-    step_fft(starts_with("ts")) %>%
-    prep() %>%
-    bake(prices)
-
-  expect_equal(dim(prices_xf), c(965, 18))
-})
-
-
 test_that("step_fft agrees with fft", {
   prices <- tsrecipes::prices
 
@@ -42,16 +17,3 @@ test_that("step_fft agrees with fft", {
 
   expect_equal(ts1_step_fft, ts1_fft)
 })
-
-
-test_that("step_fft preserves", {
-  prices <- tsrecipes::prices
-
-  prices_xf <- recipe(prices) %>%
-    step_fft(ts, preserve = TRUE) %>%
-    prep() %>%
-    bake(prices)
-
-  expect_true("ts" %in% names(prices_xf))
-})
-
