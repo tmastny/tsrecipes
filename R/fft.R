@@ -73,15 +73,14 @@ ttf_transform <- function(l, name, k, fns) {
     t() %>%
     .[, 1:k]
 
-  colnames(tff_mat) <- paste0(name, "_", 1:ncol(tff_mat))
+  real_mat <- Re(tff_mat)
+  colnames(real_mat) <- paste0("fft_re_", 1:ncol(tff_mat), "_", name)
 
-  purrr::imap(fns, apply_fn, tff_mat) %>%
-    purrr::map_dfc(as_tibble)
-}
+  img_mat <- Im(tff_mat)
+  colnames(img_mat) <- paste0("fft_im_", 1:ncol(tff_mat), "_", name)
 
-apply_fn <- function(fn, fn_name, mat) {
-  colnames(mat) <- paste0(colnames(mat), "_", fn_name)
-  fn(mat)
+  list(real_mat, img_mat) %>%
+    purrr::map_dfc(tibble::as_tibble)
 }
 
 #' @export
