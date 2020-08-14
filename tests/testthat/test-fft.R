@@ -2,7 +2,7 @@ test_that("step_fft agrees with fft", {
   prices <- tsrecipes::prices
 
   prices_xf <- recipe(prices) %>%
-    step_fft(ts, fns = list(identity = identity)) %>%
+    step_fft(ts) %>%
     prep() %>%
     bake(prices)
 
