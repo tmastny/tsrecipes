@@ -1,4 +1,4 @@
-```{r setup}
+```{r}
 library(tsrecipes)
 library(tidyverse)
 library(dtwclust)
@@ -61,6 +61,19 @@ overlap red. Which do you think is "closer" in distance, intuitively?
 eth_sample <- ethanol %>%
   filter(id %in% c(1, 2, 53))
 
+eth_sample_unnested_trunc <- eth_sample %>%
+  mutate(n = list(1:1751)) %>%
+  unnest(c(ts, n)) %>%
+  filter(between(n, 500, 1500))
+
+eth_sample_trunc <- eth_sample_unnested_trunc %>%
+  select(-n) %>%
+  group_by(id, class) %>%
+  summarise(ts = list(ts), .groups = "drop")
+```
+
+
+```{r}
 plot_overlap <- function(ids, x) {
   group_colors <- c(`1` = "#F8766D", `2` = "#619CFF")
   if (any(ids != c(1, 2))) {
@@ -69,8 +82,6 @@ plot_overlap <- function(ids, x) {
   
   x %>%
     filter(id %in% ids) %>%
-    mutate(n = list(1:1751)) %>%
-    unnest(c(ts, n)) %>%
     ggplot(aes(n, ts, color = as.factor(id), group = id)) +
     geom_line(show.legend = FALSE) +
     scale_color_manual(values = group_colors) +
@@ -78,7 +89,7 @@ plot_overlap <- function(ids, x) {
 }
 
 plots <- list(c(1, 2), c(1, 53)) %>%
-  map(plot_overlap, eth_sample)
+  map(plot_overlap, eth_sample_unnested_trunc)
 
 plots[[1]] / plots[[2]]
 ```
@@ -114,16 +125,20 @@ you can see how dynamic time warping stretches
 (warps) time to match up nearby points. 
 
 ```{r}
-dtw::dtw(eth_sample$ts[[1]], eth_sample$ts[[2]]) %>%
-  dtw::dtwPlotTwoWay(xts = eth_sample$ts[[1]], yts = eth_sample$ts[[2]])
+dtw::dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[2]]) %>%
+  dtw::dtwPlotTwoWay(
+    xts = eth_sample_trunc$ts[[1]], yts = eth_sample_trunc$ts[[2]]
+  )
 ```
 
 When comparing red to green, there is a lot more warping going on to match up 
 points (as measured by the light gray concentric lines between the series).
 
 ```{r}
-dtw::dtw(eth_sample$ts[[1]], eth_sample$ts[[3]]) %>%
-  dtw::dtwPlotTwoWay(xts = eth_sample$ts[[1]], yts = eth_sample$ts[[3]])
+dtw::dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[3]]) %>%
+  dtw::dtwPlotTwoWay(
+    xts = eth_sample_trunc$ts[[1]], yts = eth_sample_trunc$ts[[3]]
+  )
 ```
 
 The dissimilarity between red and green is reflected when we
