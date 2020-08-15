@@ -19,3 +19,13 @@ test_that("step_dtw makes k clusters", {
   }
 })
 
+test_that("step_dtw accepts options", {
+
+  prepped <- recipe(tsrecipes::prices) %>%
+    step_dtw(ts, options = list(type = "hierarchical")) %>%
+    prep()
+
+  clust_obj <- prepped$steps[[1]]$dtwclust$ts
+
+  expect_equal(clust_obj@type, "hierarchical")
+})
