@@ -1,3 +1,15 @@
+## Introduction
+
+
+
+1. how standard methods mislead time series clustering
+
+2. dynamic time warping distance as a method for intutitive similarity
+
+3. clustering similar time series
+
+## Distance Metrics
+
 ```{r}
 library(tsrecipes)
 library(tidyverse)
@@ -38,9 +50,6 @@ beer_fc %>%
   guides(colour=guide_legend(title="Forecast"))
 ```
 
-https://otexts.com/fpp3/simple-methods.html
-
-
 A straight line between two points isn't always the possible. 
 In a city grid, we are constrained by the blocks, so the distance
 between two points is called the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry).
@@ -49,7 +58,7 @@ between two points is called the [Manhattan distance](https://en.wikipedia.org/w
 knitr::include_graphics("283px-Manhattan_distance.svg.png")
 ```
 
-As I'll demonstrate in the next section that time series also
+As I'll demonstrate in the next section, time series also
 need a special distance metric. The most common is called Dynamic Time Warping.
 
 ## Time Series Distance

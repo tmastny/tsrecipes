@@ -1,3 +1,38 @@
+## Introduction
+
+The discrete cosine transform (DCT) is a technique from data compression you can
+use for time series dimensionality reduction. 
+
+I'll share a time series with 1751 observations,
+that can be reduced to 40 uncorrelated features. These features also
+give much better results when doing time series classification and clustering.
+
+My next post will cover what the discrete cosine transform actually is,
+and how it provides such a high degree of dimensionality reduction.
+
+
+
+
+I'll share how to use the discrete cosine transform  on time series for
+dimensionality reduction,
+to aid in time series classification and clustering. 
+
+
+Then I'll explore how 
+
+I'll talk about two concepts:
+
+* time series smoothing to identify the 
+  [time series trend](https://otexts.com/fpp3/tspatterns.html)
+* dimensionality reduction and feature engineering for time series
+  cluster and classification
+
+Both of these are possible because DCT is 
+[perfectly reverible](https://en.wikipedia.org/wiki/Transform_coding#:~:text=Transform%20coding%20is%20a%20type,audio%20signals%20or%20photographic%20images.)
+
+
+## Data compression
+
 ```{r}
 library(tsrecipes)
 library(tidyverse)
