@@ -2,9 +2,9 @@
 
 
 
-1. how standard methods mislead time series clustering
+1. how standard distance metrics lead failure for time series clustering
 
-2. dynamic time warping distance as a method for intutitive similarity
+2. dynamic time warping distance as a method for similarity
 
 3. clustering similar time series
 
@@ -19,10 +19,10 @@ library(patchwork)
 
 To cluster, we need to measure the distance between every member of the group.
 Typically we think of [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance#:~:text=In%20mathematics%2C%20the%20Euclidean%20distance,metric%20as%20the%20Pythagorean%20metric.):
-the length of a straight line between to points.
+the length of a straight line between two points.
 
 This distance pops up all the time in data science,
-usually called Mean Squared Error (MSE) or 
+usually called the Mean Squared Error (MSE) or 
 it's counterpart Root Mean Squared Error (RMSE). 
 It's used to measure regression error in machine learning,
 and assess the accuracy of a [time series forecast](https://otexts.com/fpp3/accuracy.html).
@@ -134,20 +134,19 @@ you can see how dynamic time warping stretches
 (warps) time to match up nearby points. 
 
 ```{r}
-dtw::dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[2]]) %>%
-  dtw::dtwPlotTwoWay(
-    xts = eth_sample_trunc$ts[[1]], yts = eth_sample_trunc$ts[[2]]
-  )
+plot_dtw <- function(ts1, ts2) {
+  dtw::dtw(ts1, ts2) %>%
+    dtw::dtwPlotTwoWay(xts = ts1, yts = ts2)
+}
+
+plot_dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[2]])
 ```
 
 When comparing red to green, there is a lot more warping going on to match up 
 points (as measured by the light gray concentric lines between the series).
 
 ```{r}
-dtw::dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[3]]) %>%
-  dtw::dtwPlotTwoWay(
-    xts = eth_sample_trunc$ts[[1]], yts = eth_sample_trunc$ts[[3]]
-  )
+plot_dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[3]])
 ```
 
 The dissimilarity between red and green is reflected when we
