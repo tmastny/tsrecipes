@@ -27,7 +27,7 @@ it's counterpart Root Mean Squared Error (RMSE).
 It's used to measure regression error in machine learning,
 and assess the accuracy of a [time series forecast](https://otexts.com/fpp3/accuracy.html).
 
-```{r, echo=FALSE, fig.cap="The distance between the forecast and the actual model is calculated by the Euclidean distance between corresponding points in the time series and the forecasts. Evaluation of time series models is typically calculated using Euclidean distance "}
+```{r, echo=FALSE}
 library(fpp3)
 library(tsibble)
 library(tsibbledata)
@@ -49,6 +49,11 @@ beer_fc %>%
   labs(x = NULL, y = NULL) +
   guides(colour=guide_legend(title="Forecast"))
 ```
+
+To evaluate the fit of the forecast and the actual data, 
+we calculated the Euclidean distance between the corresponding points
+in the time series and the forecasts.
+
 
 A straight line between two points isn't always the possible. 
 In a city grid, we are constrained by the blocks, so the distance
