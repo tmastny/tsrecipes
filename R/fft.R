@@ -1,3 +1,18 @@
+#' Extract discrete Fourier transform coefficients
+#'
+#' @description In almost all cases, use \link{step_dct} instead.
+#' The discrete cosine transform has better compaction in general.
+#' DCT coefficients are always real, while DFT returns complex numbers,
+#' which increases the number of dimensions.
+#'
+#' @param k The number of discrete Fourier transform coefficients
+#'
+#' @param coefs A list of the length and coefficient indices for each
+#' time series passed to the step, created once the step has been trained.
+#'
+#' @references Sayood, K. Introduction to Data Compression
+#'
+#' @inheritParams recipes::step_bs
 #' @export
 step_fft <- function(
   recipe,
