@@ -1,8 +1,24 @@
 ## Introduction
 
+Working with a *set* of time series measuring related observations
+requires a different set of tools compared to analyzing or forecasting
+a single time series.
 
+If you want to cluster time series into groups with similar behaviors, 
+one option is feature extraction: statistical summaries that
+characterize some feature of the time series, such as min, max, and
+spectral. The [feasts](https://feasts.tidyverts.org/index.html) R package
+and the Python package [tsfresh](https://github.com/blue-yonder/tsfresh)
+provide tools to make this easier. 
 
-1. how standard distance metrics lead failure for time series clustering
+Why not cluster on the time series directly? Standard methods don't work
+as well, and can produce clusters that miss structure you can visually
+identify as "similar". 
+
+Dynamic time warping is method that aligns with intuitive notions of 
+time series similarity. To show how it works, I'll walk through
+
+1. how standard distance metrics fail to create useful time series clusters
 
 2. dynamic time warping distance as a method for similarity
 
@@ -17,12 +33,16 @@ library(dtwclust)
 library(patchwork)
 ```
 
-To cluster, we need to measure the distance between every member of the group.
+To cluster, we need to measure the distance between every member of the group.^[
+The UC Business Analytics 
+[R Programming Guide](https://uc-r.github.io/hc_clustering) has an excellent
+series on clustering, covering dissimilarity measures to the final clustering
+algorithms.]
 Typically we think of [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance#:~:text=In%20mathematics%2C%20the%20Euclidean%20distance,metric%20as%20the%20Pythagorean%20metric.):
 the length of a straight line between two points.
 
 This distance pops up all the time in data science,
-usually called the Mean Squared Error (MSE) or 
+usually in Mean Squared Error (MSE) or 
 it's counterpart Root Mean Squared Error (RMSE). 
 It's used to measure regression error in machine learning,
 and assess the accuracy of a [time series forecast](https://otexts.com/fpp3/accuracy.html).
@@ -50,26 +70,27 @@ beer_fc %>%
   guides(colour=guide_legend(title="Forecast"))
 ```
 
-To evaluate the fit of the forecast and the actual data, 
-we calculated the Euclidean distance between the corresponding points
-in the time series and the forecasts.
+To evaluate the fit of the forecast to the actual data, 
+you can calculate the Euclidean distance between the corresponding points
+in the time series and the forecasts. The smaller the distance, 
+the better the forecast: the more *similar* the two series are.
 
 
 A straight line between two points isn't always the possible. 
-In a city grid, we are constrained by the blocks, so the distance
+In a city grid, we are constrained by the blocks. In this situation, the distance
 between two points is called the [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry).
 
 ```{r}
 knitr::include_graphics("283px-Manhattan_distance.svg.png")
 ```
 
-As I'll demonstrate in the next section, time series also
+Time series also
 need a special distance metric. The most common is called Dynamic Time Warping.
 
-## Time Series Distance
+### Time Series Distance
 
 Plotted below are three time series. I've plotted blue and green to both
-overlap red. Which do you think is "closer" in distance, intuitively?
+overlap red. Is blue or green more similar to red?
 
 ```{r}
 eth_sample <- ethanol %>%
@@ -131,27 +152,34 @@ eth_sample$ts %>%
 To capture our intuition about the similarity of red and blue,
 we need a new metric. This metric can't simply measure the point-to-point 
 distance between the series.
-As we saw, blue is shifted to the left, even though the shape
-is really similar. We need *time warping*!
+As we saw, blue is shifted to the left of red, even though the shape
+is really similar. We need to *warp time* to account for this shift!
 
 In the visualizations below^[https://www.r-bloggers.com/time-series-matching-with-dynamic-time-warping/], 
 you can see how dynamic time warping stretches
 (warps) time to match up nearby points. 
 
 ```{r}
-plot_dtw <- function(ts1, ts2) {
+plot_dtw <- function(ts1, ts2, ...) {
   dtw::dtw(ts1, ts2) %>%
-    dtw::dtwPlotTwoWay(xts = ts1, yts = ts2)
+    dtw::dtwPlotTwoWay(xts = ts1, yts = ts2, ...)
 }
 
-plot_dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[2]])
+plot_dtw(
+  eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[2]], col = c("#F8766D", "#619CFF")
+)
 ```
 
-When comparing red to green, there is a lot more warping going on to match up 
-points (as measured by the light gray concentric lines between the series).
+When comparing red to green below, 
+there is a lot more warping going on to match up 
+points (as measured by the light gray concentric lines between the series),
+so the time series are more dissimilar.
 
 ```{r}
-plot_dtw(eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[3]])
+plot_dtw(
+  eth_sample_trunc$ts[[1]], eth_sample_trunc$ts[[3]], 
+  col = c("#F8766D", "#00BA38")
+)
 ```
 
 The dissimilarity between red and green is reflected when we
@@ -167,8 +195,8 @@ eth_sample$ts %>%
 
 ## Clustering Time Series
 
-Here's a good introudction to clustering.
-https://uc-r.github.io/hc_clustering
+Here's a good introduction to clustering.
+
 
 
 
