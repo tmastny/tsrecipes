@@ -22,8 +22,8 @@ invert.step_dct <- function(step, name, coefs) {
 
 #' Reconstruct time series
 #'
-#' Reconstruct the time series `name` using the trained recipes step `step`
-#' using the columns specified in `...` with tidy-select.
+#' Reconstruct the time series `name` using the trained \link{step_dct}
+#' with the columns specified in `...`.
 #'
 #' May be a lossy reconstruct of the time series.
 #'

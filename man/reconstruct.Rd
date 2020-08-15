@@ -17,8 +17,8 @@ before \code{bake}).}
 \item{...}{tidy-selection of columns to reconstruct from}
 }
 \description{
-Reconstruct the time series \code{name} using the trained recipes step \code{step}
-using the columns specified in \code{...} with tidy-select.
+Reconstruct the time series \code{name} using the trained \link{step_dct}
+with the columns specified in \code{...}.
 }
 \details{
 May be a lossy reconstruct of the time series.

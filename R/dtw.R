@@ -4,7 +4,8 @@
 #' The number of clusters is tunable with \code{k}. Additional parameters
 #' can be set using \code{options}.
 #'
-#' Adds a single column to new data, with integers 1-k identifying the cluster.
+#' Adds a single column to new data (per input column),
+#' with integers 1-k identifying the cluster.
 #'
 #' @param k The number of clusters, tunable.
 #'

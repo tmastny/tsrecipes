@@ -1,10 +1,25 @@
+#' Extract discrete cosine transform coefficients
+#'
+#' @description Extracts \code{k} discrete cosine transform
+#' coefficients with the most variance across the set of time series.
+#'
+#' See \link{reconstruct} to reconstruct the time series using the \code{k}
+#' coefficients.
+#'
+#' Adds \code{k} column to new data (per input column).
+#'
+#' @param k The number of discrete cosine transform coefficients, tunable.
+#'
+#' @param coefs A list of the length and coefficient indices for each
+#' time series passed to the step, created once the step has been trained.
+#'
+#' @inheritParams recipes::step_bs
 #' @export
 step_dct <- function(
   recipe,
   ...,
   role = "predictor",
   trained = FALSE,
-  # TODO: if K is null, return all coefficients
   k = 4,
   coefs = NULL,
   skip = FALSE,
