@@ -2,7 +2,7 @@
 
 The discrete cosine transform (DCT) can provide significant dimensionality 
 reduction
-for time series that improve accuracy in time series classification and clustering.
+for time series, improving accuracy in time series classification and clustering.
 That's the topic my previous [post]().
 
 Besides being a useful tool, DCT is fascinating in it's own right.
@@ -13,14 +13,14 @@ I'll try to answer this by
 
 1. representing time series as combinations of different
    time series
-2. explaining how the discrete cosine transform is a series of cosine waves
+2. explaining how the discrete cosine transform is a combination of cosine waves
    of varying strength and frequency
 3. demonstrating that the *strength* and *frequency* of cosine waves are
    effective dimensionality reduction criteria
    
    
-Lastly, I share some resources on data compression: the field of study
-where DCT originated, and why it has some fundamental connections to
+Lastly, I'll share some resources on data compression: the field of study
+where DCT originated, and why it has fundamental connections to
 machine learning. 
 
 ## Time series as combinations of components
@@ -83,15 +83,15 @@ decomposition, we can add the components back together to exactly reconstruct
 the series.
 
 You can also think of the low-frequency component as time series
-smoothing, like the trend in classic decomposition (or a simple moving average).
-It's not as useful for as other smoothing techniques, in general,
-because it a little too wavy. You can see the blue waves that randomly appear in
+smoothing, like the trend in classical decomposition (or a simple moving average).
+It's not as useful as other smoothing techniques, in general,
+because it a little too wavy. Note the blue waves that randomly appear in
 the flat section from 0 to 500.
 
 The discrete cosine feature is what makes all this possible. In the next section,
 I'll explain how it really works.
 
-## Discrete cosine transform as time series cosine waves
+## Discrete cosine transform: cosine combinations
 
 To accomplish the frequency decomposition, we need basic units of frequency, 
 like the recurring units of time (week, month, year) in seasonal decomposition.
@@ -228,7 +228,7 @@ ts_recon_low_dim %>%
   geom_line(aes(n, value, color = name))
 ```
 
-Overall, still pretty good, but the 0-500 and >1500 look a little too wiggly.
+Overall, still pretty good, but 0-500 and >1500 look a little too wiggly.
 Both reconstructions have pretty similar mean squared error to the original red
 time series.
 
@@ -254,7 +254,7 @@ For example, the average human ear hears sound in the
 [20 Hz to 20 kHz](https://en.wikipedia.org/wiki/Psychoacoustics)
 frequency ranges, so we can safely remove those waves no matter what.
 
-With the last time series, we first thought to try exclude the high-frequency
+With the last time series, we first excluded the high-frequency
 components, but in some time series high-frequencies are the most 
 important features.
 
@@ -327,18 +327,18 @@ Data compression is a fascinating discipline with
 [surprising connections](https://cs.fit.edu/~mmahoney/compression/rationale.html)
 to machine learning.
 
-The field can be describe as
+The field can be described as
 
 > the art or science of representing information in a more compact form. 
   - *Sayood, K. Introduction to Data Compression*
 
 Compact forms have natural utility in machine learning by way of
-dimensionality. Principle Component Analysis (PCA) can
+dimensionality reduction. Principle Component Analysis (PCA) can
 be thought of as a [data compression](http://www.statistics4u.info/fundstat_eng/cc_pca_compress.html)
 algorithm, as well as a reduction technique.
 
 Both fields also seek correlations^[*Introduction to Data Compression* 
-example 13.2.1 is a fun look at linear regression as a compression technique].
+example 13.2.1 is a fun look at linear regression as a compression technique.].
 In data compression, correlation implies redundant information,
 and the goal is to reduce the data to the minimum set of uncorrelated data.
 
