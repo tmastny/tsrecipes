@@ -6,7 +6,6 @@ step_fft <- function(
   trained = FALSE,
   k = 4,
   dct = TRUE,
-  preserve = FALSE,
   series = NULL,
   skip = FALSE,
   id = recipes::rand_id("tff")
@@ -21,7 +20,6 @@ step_fft <- function(
       trained = trained,
       role = role,
       k = k,
-      preserve = preserve,
       series = series,
       skip = skip,
       id = id
@@ -29,14 +27,13 @@ step_fft <- function(
   )
 }
 
-step_fft_new <- function(terms, role, trained, k, preserve, series, skip, id) {
+step_fft_new <- function(terms, role, trained, k, series, skip, id) {
   step(
     subclass = "fft",
     terms = terms,
     role = role,
     trained = trained,
     k = k,
-    preserve = preserve,
     series = series,
     skip = skip,
     id = id
@@ -52,7 +49,6 @@ prep.step_fft <- function(x, training, info = NULL) {
     trained = TRUE,
     role = x$role,
     k = x$k,
-    preserve = x$preserve,
     series = col_names,
     skip = x$skip,
     id = x$id
@@ -83,9 +79,5 @@ bake.step_fft <- function(object, new_data, ...) {
   tff_cols <- new_data[, col_names] %>%
     purrr::imap_dfc(ttf_transform, object$k)
 
-  if (!object$preserve) {
-    new_data[, col_names] <- NULL
-  }
   dplyr::bind_cols(new_data, tff_cols)
 }
-

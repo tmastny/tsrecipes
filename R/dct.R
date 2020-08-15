@@ -6,7 +6,6 @@ step_dct <- function(
   trained = FALSE,
   # TODO: if K is null, return all coefficients
   k = 4,
-  preserve = FALSE,
   coefs = NULL,
   skip = FALSE,
   id = recipes::rand_id("dct")
@@ -21,7 +20,6 @@ step_dct <- function(
       trained = trained,
       role = role,
       k = k,
-      preserve = preserve,
       coefs = coefs,
       skip = skip,
       id = id
@@ -29,14 +27,13 @@ step_dct <- function(
   )
 }
 
-step_dct_new <- function(terms, role, trained, k, preserve, coefs, skip, id) {
+step_dct_new <- function(terms, role, trained, k, coefs, skip, id) {
   step(
     subclass = "dct",
     terms = terms,
     role = role,
     trained = trained,
     k = k,
-    preserve = preserve,
     coefs = coefs,
     skip = skip,
     id = id
@@ -78,7 +75,6 @@ prep.step_dct <- function(x, training, info = NULL) {
     trained = TRUE,
     role = x$role,
     k = x$k,
-    preserve = x$preserve,
     coefs = coefs,
     skip = x$skip,
     id = x$id
@@ -103,10 +99,6 @@ bake.step_dct <- function(object, new_data, ...) {
 
     compressed_dct <- dct[, coefs[[col_name]]$.indices]
     dct_cols[[col_name]] <- compressed_dct
-  }
-
-  if (!object$preserve) {
-    new_data[, names(coefs)] <- NULL
   }
 
   dct_cols %>%
@@ -145,4 +137,3 @@ mvfdct <- function(m) {
   w <- rbind(m, m[N:1, ])
   0.5 * Re(mvfft(w) / P)[1:N, ]
 }
-
