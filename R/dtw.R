@@ -1,3 +1,18 @@
+#' Clustering time series using dynamic time warping
+#'
+#' @description Clusters a time series using \code{\link[dtwclust:tsclust]{dtwclust::tsclust}}.
+#' The number of clusters is tunable with \code{k}. Additional parameters
+#' can be set using \code{options}.
+#'
+#' Adds a single column to new data, with integers 1-k identifying the cluster.
+#'
+#' @param k The number of clusters, tunable.
+#'
+#' @param dtwclust A list of \code{\link[dtwclust:TSClusters-class]{TClusters}}
+#' objects for each list of time series passed to the step, created once
+#' the step has been trained.
+#'
+#' @inheritParams recipes::step_bs
 #' @export
 step_dtw <- function(
   recipe,
