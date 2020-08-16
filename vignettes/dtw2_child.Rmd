@@ -31,6 +31,7 @@ library(tsrecipes)
 library(tidyverse)
 library(dtwclust)
 library(patchwork)
+library(recipes)
 ```
 
 To cluster, we need to measure the distance between every member of the group.^[
@@ -195,10 +196,146 @@ eth_sample$ts %>%
 
 ## Clustering Time Series
 
-Here's a good introduction to clustering.
+Equipped with a measure of similarity, we can now attempt to cluster
+the time series. The time series studied in previous examples are part of a set of
+504 time series, belonging to four classes. 
+
+I'll use `step_dtw` from my tsrecipes package to cluster using dynamic time
+warping a similarity metric. `step_dtw` uses the excellent 
+[dtwclust](https://github.com/asardaes/dtwclust) package behind the scenes.
+
+```{r}
+if (!file.exists("ethanol_clusters.RDS")) {
+  ethanol_clusters <- recipe(ethanol) %>%
+    step_dtw(ts, k = 4) %>%
+    prep() %>%
+    bake(ethanol)
+  
+  saveRDS(ethanol_clusters, "ethanol_clusters.RDS")
+}
+
+ethanol_clusters <- readRDS("ethanol_clusters.RDS")
+```
+
+```{r}
+ethanol_clusters %>%
+  group_by(class, dtwclust_ts) %>%
+  summarise(n = n(), .groups = "drop") %>%
+  pivot_wider(names_from = class, values_from = n)
+```
 
 
+```{r}
+ethanol_clusters %>%
+  rowwise() %>%
+  mutate(n = list(1:1751)) %>%
+  ungroup() %>%
+  unnest(c(ts, n)) %>%
+  ggplot() +
+  geom_line(aes(n, ts, color = class, group = id), show.legend = FALSE) +
+  facet_wrap(~dtwclust_ts)
+```
+
+```{r}
+ethanol_clusters %>%
+  rowwise() %>%
+  mutate(n = list(1:1751)) %>%
+  ungroup() %>%
+  unnest(c(ts, n)) %>%
+  ggplot(aes(n, ts, color = as.factor(dtwclust_ts))) +
+  geom_line(aes(group = id), show.legend = FALSE) +
+  facet_wrap(~class)
+```
+
+```{r}
+mm_model <- ethanol_clusters %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  nnet::multinom(class ~ dtwclust_ts, data = .)
+```
 
 
+```{r}
+pred_eth <- ethanol_clusters %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  mutate(pred = predict(mm_model, ., type = "class"))
 
+pred_eth %>%
+  group_by(class, pred) %>%
+  summarise(n = n()) %>%
+  group_by(pred_correct = class == pred) %>%
+  summarise(n = sum(n)) %>%
+  mutate(percent = n / sum(n))
+```
+
+
+```{r}
+if (!file.exists("ethanol_clusters8.RDS")) {
+  ethanol_clusters8 <- recipe(ethanol) %>%
+    step_dtw(ts, k = 8) %>%
+    prep() %>%
+    bake(ethanol)
+  
+  saveRDS(ethanol_clusters8, "ethanol_clusters8.RDS")
+}
+
+ethanol_clusters8 <- readRDS("ethanol_clusters8.RDS")
+```
+
+```{r}
+model8 <- ethanol_clusters8 %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  nnet::multinom(class ~ dtwclust_ts, data = .)
+```
+
+
+```{r}
+pred_eth <- ethanol_clusters8 %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  mutate(pred = predict(model8, ., type = "class"))
+
+pred_eth %>%
+  group_by(class, pred) %>%
+  summarise(n = n()) %>%
+  group_by(pred_correct = class == pred) %>%
+  summarise(n = sum(n)) %>%
+  mutate(percent = n / sum(n))
+```
+
+```{r}
+ethanol_clusters8 %>%
+  rowwise() %>%
+  mutate(n = list(1:1751)) %>%
+  ungroup() %>%
+  unnest(c(ts, n)) %>%
+  ggplot() +
+  geom_line(aes(n, ts, color = class, group = id), show.legend = FALSE) +
+  facet_wrap(~dtwclust_ts)
+```
+
+Finding useful clusters requires setting enough distinct clusters.
+
+But finding these clusters is also sensitive to the many options
+you are select in `dtwclust::tsclust`. 
+
+Theoretically, you could tune across the number of clusters, 
+as well as cluster (and distance methods). 
+
+It's worth checking out `dtwclust::compare_clusterings` if you are
+interested in doing this. 
+Right now it's not supported in `step_dtw`. Clustering with `tsclust`
+takes a long time, and finding useful clusters can also be subjective.
+
+I'd strongly recommend plotting clusters as a part of exploratory data analysis,
+rather than tuning blindly. Whether you doing a single clustering, or
+evaluating clusters objectively (scoring against classes) or subjectively
+(looking at the shape of clusters), you need to limit your explorations
+to the train set.
+
+Just make sure you are still only using your
+training data,  not your test data, when subjectively evaluating your clusters
+to avoid information leakage. 
+
+Be careful here: preprocessing, and even exploration on the training set
+can create [information leakage](http://www.feat.engineering/resampling.html),
+make your model appear more effective than it actually is.
 
