@@ -2,6 +2,7 @@ library(recipes)
 library(dplyr)
 library(purrr)
 library(stringr)
+library(tidymodels)
 
 test_that("step_dct agrees with dct", {
   prices <- tsrecipes::prices

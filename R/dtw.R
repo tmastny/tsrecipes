@@ -100,4 +100,13 @@ bake.step_dtw <- function(object, new_data, ...) {
   dplyr::bind_cols(new_data, tibble::tibble(!!!cluster_cols))
 }
 
-# TODO: need to make tunable and test
+#' @export
+tunable.step_dtw <- function(x, ...) {
+  tibble::tibble(
+    name = "k",
+    call_info = list(list(pkg = "dials", fun = "num_terms", range = c(1L, 4L))),
+    source = "recipe",
+    component = "step_dtw",
+    component_id = x$id
+  )
+}

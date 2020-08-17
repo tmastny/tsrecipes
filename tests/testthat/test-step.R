@@ -26,3 +26,39 @@ test_that("steps keeps original time series", {
     expect_true("ts" %in% !!names(xf$data))
   }
 })
+
+step_workflow <- function(rec, val, grid) {
+  workflow() %>%
+    add_model(logistic_reg() %>% set_engine("glm")) %>%
+    add_recipe(rec) %>%
+    tune_grid(
+      resamples = val,
+      grid = grid
+    )
+}
+
+test_that("steps are tunable", {
+  distmat <- readRDS(here::here("tests", "testthat", "prices_distmat.RDS"))
+  dtw_options <- list(control = dtwclust::partitional_control(distmat = distmat))
+
+  k_vals <- c(4, 8, 16, 32)
+  prices_val <- validation_split(prices)
+
+  recipes <- list(
+
+    dct = recipe(prices, vars = names(prices), roles = c("id", "outcome", "input")) %>%
+      step_dct(ts, k = tune()),
+
+    dtw = recipe(prices, vars = names(prices), roles = c("id", "outcome", "input")) %>%
+      step_dtw(ts, k = tune(), options = dtw_options) %>%
+      step_mutate_at(all_predictors(), fn = factor)
+  )
+
+  tune_results <- recipes %>%
+    map(step_workflow, prices_val, expand_grid(k = k_vals)) %>%
+    map(collect_metrics)
+
+  for (results in tune_results) {
+    expect_equal(!!unique(results$k), k_vals)
+  }
+})

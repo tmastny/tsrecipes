@@ -126,7 +126,7 @@ bake.step_dct <- function(object, new_data, ...) {
 tunable.step_dct <- function(x, ...) {
   tibble::tibble(
     name = "k",
-    call_info = list(list(pkg = "dials", fun = "num_terms")),
+    call_info = list(list(pkg = "dials", fun = "num_terms", range = c(1L, 4L))),
     source = "recipe",
     component = "step_dct",
     component_id = x$id
