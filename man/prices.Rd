@@ -5,7 +5,7 @@
 \alias{prices}
 \title{Share Price Increase}
 \format{
-A data frame with 53940 rows and 10 variables:
+A data frame with 965 rows and 3 variables:
 \describe{
 \item{id}{unique id of the time series}
 \item{class}{whether or not the time series increased or not}
@@ -20,7 +20,6 @@ A data frame with 53940 rows and 10 variables:
 prices
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+Time series of price increases over a 60 day period.
 }
 \keyword{datasets}

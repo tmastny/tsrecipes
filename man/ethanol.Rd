@@ -3,24 +3,23 @@
 \docType{data}
 \name{ethanol}
 \alias{ethanol}
-\title{Share Price Increase}
+\title{Ethanol levels}
 \format{
-A data frame with 53940 rows and 10 variables:
+A data frame with 504 rows and 3 variables:
 \describe{
 \item{id}{unique id of the time series}
-\item{class}{whether or not the time series increased or not}
-\item{ts}{list column, containing a time series of length 60 for each row}
+\item{class}{four classes: e35, e38, e40, e45}
+\item{ts}{list column, containing a time series of length 1751 for each row}
 ...
 }
 }
 \source{
-\url{# http://www.timeseriesclassification.com/description.php?Dataset=EthanolLevel}
+\url{http://www.timeseriesclassification.com/description.php?Dataset=EthanolLevel}
 }
 \usage{
 ethanol
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+Time series of ethanol with varying levels of alcohol. Four classes.
 }
 \keyword{datasets}
