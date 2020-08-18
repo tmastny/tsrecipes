@@ -205,14 +205,14 @@ warping similarity metric. `step_dtw` uses the excellent
 [dtwclust](https://github.com/asardaes/dtwclust) package behind the scenes.
 
 ```{r}
-
-prepped <- recipe(ethanol) %>%
-    step_dtw(ts, k = 4) %>%
-    prep() 
-
- prepped$steps[[1]]$dtwclust$ts@distmat %>% 
-   saveRDS("ethanol_distmat.RDS")
-
+if (!file.exists("ethanol_distmat.RDS")) {
+  prepped <- recipe(ethanol) %>%
+      step_dtw(ts, k = 4) %>%
+      prep() 
+  
+   prepped$steps[[1]]$dtwclust$ts@distmat %>% 
+     saveRDS("ethanol_distmat.RDS")
+}
 
 if (!file.exists("ethanol_clusters.RDS")) {
   ethanol_clusters <- recipe(ethanol) %>%
@@ -226,6 +226,9 @@ if (!file.exists("ethanol_clusters.RDS")) {
 ethanol_clusters <- readRDS("ethanol_clusters.RDS")
 ```
 
+```{r}
+ethanol_distmat <- readRDS("ethanol_distmat.RDS")
+```
 
 
 
@@ -402,12 +405,60 @@ matrix and supply that to the cluster algorithms. Care must be taken here
 to avoid data leakage (see the section below).
 
 
+```{r}
+getwd()
+```
+
+```{r}
+distmat <- readRDS("ethanol_distmat.RDS")
+```
+
+```{r}
+library(tidymodels)
+
+dtw_options = list(control = dtwclust::partitional_control(distmat = distmat))
+
+# rec <- recipe(
+#   ethanol, vars = names(ethanol), roles = c("id", "outcome", "input")
+# ) %>%
+rec <- recipe(ethanol) %>%
+  update_role(everything(), new_role = "id") %>%
+  update_role(class, new_role = "outcome") %>%
+  step_dtw(ts, k = tune(), options = dtw_options) %>%
+  step_mutate_at(all_predictors(), fn = factor)
+```
+
+```{r}
+val <- tibble(
+  splits = list(make_splits(
+    list(analysis = 1:504, assessment = 1:504), data = ethanol
+  ))
+) %>%
+  new_rset(c(id = "validation"), subclass = "rset")
+```
+
+```{r}
+if (!file.exists("ethanol_tune_results.RDS")) {
+  tune_results <- workflow() %>%
+    add_model(multinom_reg() %>% set_engine("nnet")) %>%
+    add_recipe(rec) %>%
+    tune_grid(
+      resamples = val,
+      grid = expand_grid(k = c(4, 8, 16, 32, 64))
+    )
+  saveRDS(tune_results, "ethanol_tune_results.RDS")
+}
+
+tune_results <- readRDS("ethanol_tune_results.RDS")
+```
 
 
-
-
-
-
+```{r}
+tune_results %>%
+  collect_metrics() %>%
+  filter(.metric == "accuracy") %>%
+  select(k, mean)
+```
 
 
 Finding useful clusters requires setting enough distinct clusters.
