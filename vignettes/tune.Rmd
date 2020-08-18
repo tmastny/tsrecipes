@@ -79,7 +79,7 @@ model %>%
 ```
 
 ```{r}
-indices <- model$pre$mold$blueprint$recipe$steps[[1]]$coefs$ts
+step <- model$pre$mold$blueprint$recipe$steps[[1]]
 ```
 
 ```{r}
@@ -87,48 +87,48 @@ prices_coef <- prices %>%
   bind_cols(model$pre$mold$predictors)
 
 price_recon <- prices_coef %>%
-  reconstruct(ts.1:ts.53, indices = indices, n = 60)
+  reconstruct("ts", step, starts_with("dct_"))
 ```
 
 ```{r}
 price_recon %>%
   sample_n(10) %>%
-  unnest(c(ts, recon, n)) %>%
+  unnest(c(ts, ts_recon, n)) %>%
   ggplot(aes(n)) +
   geom_line(aes(y = ts), color = "red") +
-  geom_line(aes(y = recon), color = "blue") +
+  geom_line(aes(y = ts_recon), color = "blue") +
   facet_wrap(~id)
 ```
 
 ```{r}
 ts.32_imp <- prices_coef %>%
-  summarise(across(starts_with("ts."), mean)) %>%
-  mutate(ts.32 = list(seq(
-    min(prices_coef$ts.32), 
-    max(prices_coef$ts.32)
+  summarise(across(starts_with("dct_"), mean)) %>%
+  mutate(dct_32_ts = list(seq(
+    min(prices_coef$dct_32_ts), 
+    max(prices_coef$dct_32_ts)
   ))) %>%
-  unnest(ts.32) %>%
+  unnest(dct_32_ts) %>%
   bind_cols(predict(pull_workflow_fit(model), ., type = "prob"))
 
 ts.32_imp %>%
-  ggplot(aes(ts.32, .pred_increase)) +
+  ggplot(aes(dct_32_ts, .pred_increase)) +
   geom_line()
 ```
 
 ```{r}
 ts.32_recon <- ts.32_imp %>%
-  reconstruct(ts.1:ts.53, indices = indices, n = 60)
+  reconstruct("ts", step, starts_with("dct_"))
 ```
 
 ```{r}
 set.seed(10)
 ts.32_recon %>%
-  select(ts.32, recon, n) %>%
+  select(dct_32_ts, ts_recon, n) %>%
   sample_n(10) %>%
-  unnest(c(recon, n)) %>%
-  ggplot(aes(n, recon, color = as.factor(ts.32))) +
+  unnest(c(ts_recon, n)) %>%
+  ggplot(aes(n, ts_recon, color = as.factor(dct_32_ts))) +
   geom_line(show.legend = FALSE) +
-  facet_wrap(~ts.32)
+  facet_wrap(~dct_32_ts)
 ```
 
 ```{r}
