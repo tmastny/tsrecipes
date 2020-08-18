@@ -17,9 +17,6 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(tsrecipes)
 library(tidyverse)
-```
-
-```{r}
 library(dtt)
 ```
 
@@ -28,9 +25,7 @@ tsdb <- tsrecipes::prices$ts
 ts <- tsdb[[1]]
 ```
 
-```{r}
-x <- ts
-```
+Single time series.
 
 ```{r}
 dct_dtt <- dtt::dct
@@ -38,14 +33,12 @@ bench_ts <- bench::mark(
   fdct(ts),
   dct_dtt(ts)
 )
-```
 
-```{r}
 bench_ts %>%
   select(expression, min, median, mem_alloc)
 ```
 
-
+Matrix of time series.
 
 ```{r}
 dct_so_apply <- function(l) {
@@ -62,10 +55,7 @@ dct_so_mv <- function(l) {
     mvfdct() %>%
     t()
 }
-```
 
-
-```{r}
 dct_dtt_apply <- function(l) {
   l %>%
     simplify2array() %>%
@@ -93,47 +83,3 @@ bench_tsdb <- bench::mark(
 bench_tsdb %>%
   select(expression, min, median, mem_alloc)
 ```
-
-## Inverse
-
-```{r}
-its <- dct_dtt(ts)
-```
-
-
-```{r}
-bench_its <- bench::mark(
-  dct_dtt(its, inverted = TRUE)
-)
-```
-
-```{r}
-bench_its %>%
-  select(expression, min, median, mem_alloc)
-```
-
-
-
-
-
-```{r}
-df <- tibble(
-  n = 1:60,
-  ts = ts,
-  reconstruct = dct_dtt(ifelse(its > 8, its, 0), inverted = TRUE)
-) 
-```
-
-```{r}
-its[ifelse(its > 8, its, 0) != 0] %>% length()
-```
-
-
-
-```{r}
-df %>%
-  ggplot(aes(n)) +
-  geom_line(aes(y = ts), color = "red") +
-  geom_line(aes(y = reconstruct), color = "blue")
-```
-

@@ -1,0 +1,154 @@
+---
+title: "dct-example2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dct-example2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r}
+library(data.table)
+library(dtplyr)
+library(tsrecipes)
+library(tidyverse)
+library(lubridate)
+```
+
+## Multiple time series per class
+
+```{r}
+w <- read_csv("~/Downloads/2019-Dec.csv")
+```
+
+```{r}
+w <- lazy_dt(w)
+```
+
+```{r}
+wdt <- w %>%
+  mutate(event_time = as_datetime(event_time))
+```
+
+```{r}
+wdt %>%
+```
+
+```{r}
+wdt %>%
+  summarise(n_distinct(product_id), n_distinct(category_id), n_distinct(brand))
+```
+
+```{r}
+daily <- wdt %>%
+  mutate(event = floor_date(event_time, unit = "day")) %>%
+  group_by(event, event_type, category_id) %>%
+  summarise(n = n()) %>%
+  ungroup()
+```
+
+```{r}
+daily_tb <- daily %>%
+  as_tibble()
+```
+
+```{r}
+daily_tb %>%
+  ggplot(aes(event, n)) +
+  geom_line(aes(color = category_id, group = category_id), show.legend = FALSE) +
+  facet_wrap(~event_type)
+```
+
+```{r}
+daily_tb %>%
+  group_by(category_id) %>%
+  summarise(n = sum(n)) %>%
+  ggplot(aes(n)) +
+  stat_ecdf() +
+  scale_x_log10(labels = scales::comma)
+```
+
+
+```{r}
+cats <- daily_tb %>%
+  group_by(category_id) %>%
+  summarise(n = sum(n)) 
+```
+
+```{r}
+daily_tb %>%
+  filter(category_id %in% (cats %>% 
+    filter(between(n, 800, 1000)) %>%
+    pull(category_id))
+  ) %>%
+  ggplot(aes(event, n)) +
+  geom_line(aes(color = category_id, group = category_id), show.legend = FALSE) +
+  facet_wrap(~event_type)
+```
+
+
+
+
+```{r}
+library(lubridate)
+
+w %>%
+  select(event_time) %>%
+  mutate(event_time = as_dat(event_time))
+```
+
+
+```{r}
+w %>%
+  count(event_type)
+```
+
+
+```{r}
+w %>%
+  count(category_id, event_type, sort = TRUE) %>%
+  filter(event_type == "purchase")
+```
+
+
+
+
+
+
+
+```{r}
+ts <- read_csv("~/Downloads/summaryMultivariate.csv")
+```
+
+```{r}
+ts %>% View()
+  filter(str_detect(Problem, "Ethanol"))
+```
+
+
+
+```{r}
+eth2 <- read_csv(
+  "~/Downloads/EthanolConcentration/EthanolConcentration.arff",
+  comment = "@", col_names = FALSE
+)
+```
+
+
+
+  # TODO:
+  #   Add the following examples:
+        1. where you want to return a different `k` coefficients, so you  
+           apply `step_dct` twice
+           
+        2. You want to use a different selection procedure, so you return 
+           `k = length(ts)`.

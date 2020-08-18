@@ -18,12 +18,3 @@ knitr::opts_chunk$set(
 
 ```{r, child="discrete-cosine-transform_child.Rmd"}
 ```
-
-  # TODO:
-  #   Add the following examples:
-        1. where you want to return a different `k` coefficients, so you  
-           apply `step_dct` twice
-           
-        2. You want to use a different selection procedure, so you return 
-           `k = length(ts)`.
-  

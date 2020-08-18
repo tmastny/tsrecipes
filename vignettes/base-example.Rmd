@@ -28,7 +28,7 @@ tsdb <- tsrecipes::prices
 
 ```{r}
 prepped <- recipe(tsdb) %>%
-  step_dct(ts, k = 8, preserve = TRUE) %>%
+  step_dct(ts, k = 8) %>%
   prep()
 
 
@@ -40,7 +40,7 @@ tsdb_dct
 trained_step <- prepped$steps[[1]]
 
 tsdb_recon <- tsdb_dct %>%
-  reconstruct("ts", trained_step, starts_with("ts."))
+  reconstruct("ts", trained_step, starts_with("dct_"))
 ```
 
 ```{r}
@@ -53,5 +53,3 @@ tsdb_recon %>%
   geom_line(aes(y = ts_recon, group = id), color = "blue") +
   facet_wrap(~id)
 ```
-
-
