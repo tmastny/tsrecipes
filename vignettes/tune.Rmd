@@ -50,8 +50,7 @@ coef_grid <- expand_grid(
 cv_results <- pipeline %>%
   tune_grid(
     resamples = vfold_cv(prices),
-    grid = coef_grid,
-    param_info = parameters(pipeline) %>% update(k = num_terms(c(4, 60)))
+    grid = coef_grid
   )
 ```
 

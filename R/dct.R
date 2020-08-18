@@ -42,6 +42,14 @@ step_dct <- function(
   )
 }
 
+# TODO:
+#   Add the following examples:
+#   1. where you want to return a different `k` coefficients, so you
+#      apply `step_dct` twice (how do multivariate ts work here?)
+#
+#   2. You want to use a different selection procedure, so you return
+#      `k = length(ts)`.
+
 step_dct_new <- function(terms, role, trained, k, coefs, skip, id) {
   step(
     subclass = "dct",
