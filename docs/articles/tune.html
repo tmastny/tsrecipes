@@ -60,13 +60,10 @@
       <a href="../articles/benchmarking-dct.html">benchmarking-dct</a>
     </li>
     <li>
-      <a href="../articles/dct-explanation_child.html">UNKNOWN TITLE</a>
+      <a href="../articles/dct.html">dct</a>
     </li>
     <li>
       <a href="../articles/dtw2.html">dtw2</a>
-    </li>
-    <li>
-      <a href="../articles/dtw2_child.html">UNKNOWN TITLE</a>
     </li>
     <li>
       <a href="../articles/tune.html">tune</a>
@@ -106,7 +103,7 @@
     
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">tsrecipes</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">tidymodels</span>)
-<span class="co">#&gt; ── Attaching packages ───────────────────────────────────────────────── tidymodels 0.1.1 ──</span>
+<span class="co">#&gt; ── Attaching packages ────────────────────────────────────────────────── tidymodels 0.1.1 ──</span>
 <span class="co">#&gt; ✓ broom     0.7.0      ✓ recipes   0.1.13</span>
 <span class="co">#&gt; ✓ dials     0.0.8      ✓ rsample   0.0.7 </span>
 <span class="co">#&gt; ✓ dplyr     1.0.0      ✓ tibble    3.0.3 </span>
@@ -115,7 +112,7 @@
 <span class="co">#&gt; ✓ modeldata 0.0.2      ✓ workflows 0.1.3 </span>
 <span class="co">#&gt; ✓ parsnip   0.1.3      ✓ yardstick 0.0.7 </span>
 <span class="co">#&gt; ✓ purrr     0.3.4</span>
-<span class="co">#&gt; ── Conflicts ──────────────────────────────────────────────────── tidymodels_conflicts() ──</span>
+<span class="co">#&gt; ── Conflicts ───────────────────────────────────────────────────── tidymodels_conflicts() ──</span>
 <span class="co">#&gt; x purrr::discard() masks scales::discard()</span>
 <span class="co">#&gt; x dplyr::filter()  masks stats::filter()</span>
 <span class="co">#&gt; x dplyr::lag()     masks stats::lag()</span>
@@ -143,29 +140,29 @@
   <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(<span class="no">.metric</span> <span class="kw">==</span> <span class="st">"accuracy"</span>) <span class="kw">%&gt;%</span>
   <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="no">mean</span>))
 <span class="co">#&gt; # A tibble: 120 x 8</span>
-<span class="co">#&gt;     penalty     k .metric  .estimator  mean     n std_err .config        </span>
-<span class="co">#&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;fct&gt;          </span>
-<span class="co">#&gt;  1 0.00108     16 accuracy binary     0.694    10  0.0162 Recipe3_Model11</span>
-<span class="co">#&gt;  2 0.0189      32 accuracy binary     0.693    10  0.0162 Recipe4_Model23</span>
-<span class="co">#&gt;  3 0.00137     16 accuracy binary     0.693    10  0.0163 Recipe3_Model12</span>
-<span class="co">#&gt;  4 0.0001      16 accuracy binary     0.693    10  0.0155 Recipe3_Model01</span>
-<span class="co">#&gt;  5 0.000127    16 accuracy binary     0.693    10  0.0155 Recipe3_Model02</span>
-<span class="co">#&gt;  6 0.000161    16 accuracy binary     0.693    10  0.0155 Recipe3_Model03</span>
-<span class="co">#&gt;  7 0.000204    16 accuracy binary     0.693    10  0.0155 Recipe3_Model04</span>
-<span class="co">#&gt;  8 0.000259    16 accuracy binary     0.693    10  0.0155 Recipe3_Model05</span>
-<span class="co">#&gt;  9 0.000329    16 accuracy binary     0.693    10  0.0155 Recipe3_Model06</span>
-<span class="co">#&gt; 10 0.000418    16 accuracy binary     0.693    10  0.0155 Recipe3_Model07</span>
+<span class="co">#&gt;    penalty     k .metric  .estimator  mean     n std_err .config        </span>
+<span class="co">#&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;fct&gt;          </span>
+<span class="co">#&gt;  1 0.0240     32 accuracy binary     0.692    10  0.0131 Recipe4_Model24</span>
+<span class="co">#&gt;  2 0.00174    16 accuracy binary     0.692    10  0.0127 Recipe3_Model13</span>
+<span class="co">#&gt;  3 0.00452     8 accuracy binary     0.692    10  0.0130 Recipe2_Model17</span>
+<span class="co">#&gt;  4 0.00221    16 accuracy binary     0.692    10  0.0124 Recipe3_Model14</span>
+<span class="co">#&gt;  5 0.0117     16 accuracy binary     0.691    10  0.0130 Recipe3_Model21</span>
+<span class="co">#&gt;  6 0.0189     32 accuracy binary     0.691    10  0.0113 Recipe4_Model23</span>
+<span class="co">#&gt;  7 0.0149     32 accuracy binary     0.691    10  0.0115 Recipe4_Model22</span>
+<span class="co">#&gt;  8 0.0117     32 accuracy binary     0.691    10  0.0117 Recipe4_Model21</span>
+<span class="co">#&gt;  9 0.00356     8 accuracy binary     0.691    10  0.0131 Recipe2_Model16</span>
+<span class="co">#&gt; 10 0.00574     8 accuracy binary     0.691    10  0.0131 Recipe2_Model18</span>
 <span class="co">#&gt; # … with 110 more rows</span></pre></body></html></div>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">cv_results</span> <span class="kw">%&gt;%</span>
   <span class="fu">show_best</span>(<span class="st">"accuracy"</span>)
 <span class="co">#&gt; # A tibble: 5 x 8</span>
-<span class="co">#&gt;    penalty     k .metric  .estimator  mean     n std_err .config        </span>
-<span class="co">#&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;fct&gt;          </span>
-<span class="co">#&gt; 1 0.00108     16 accuracy binary     0.694    10  0.0162 Recipe3_Model11</span>
-<span class="co">#&gt; 2 0.0189      32 accuracy binary     0.693    10  0.0162 Recipe4_Model23</span>
-<span class="co">#&gt; 3 0.00137     16 accuracy binary     0.693    10  0.0163 Recipe3_Model12</span>
-<span class="co">#&gt; 4 0.0001      16 accuracy binary     0.693    10  0.0155 Recipe3_Model01</span>
-<span class="co">#&gt; 5 0.000127    16 accuracy binary     0.693    10  0.0155 Recipe3_Model02</span></pre></body></html></div>
+<span class="co">#&gt;   penalty     k .metric  .estimator  mean     n std_err .config        </span>
+<span class="co">#&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;fct&gt;          </span>
+<span class="co">#&gt; 1 0.0240     32 accuracy binary     0.692    10  0.0131 Recipe4_Model24</span>
+<span class="co">#&gt; 2 0.00174    16 accuracy binary     0.692    10  0.0127 Recipe3_Model13</span>
+<span class="co">#&gt; 3 0.00452     8 accuracy binary     0.692    10  0.0130 Recipe2_Model17</span>
+<span class="co">#&gt; 4 0.00221    16 accuracy binary     0.692    10  0.0124 Recipe3_Model14</span>
+<span class="co">#&gt; 5 0.0117     16 accuracy binary     0.691    10  0.0130 Recipe3_Model21</span></pre></body></html></div>
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">model</span> <span class="kw">&lt;-</span> <span class="no">pipeline</span> <span class="kw">%&gt;%</span>
   <span class="fu">finalize_workflow</span>(<span class="no">cv_results</span> <span class="kw">%&gt;%</span> <span class="fu">select_best</span>(<span class="st">"accuracy"</span>)) <span class="kw">%&gt;%</span>
   <span class="fu">fit</span>(<span class="kw">data</span> <span class="kw">=</span> <span class="no">prices</span>)</pre></body></html></div>

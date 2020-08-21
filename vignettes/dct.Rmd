@@ -1,8 +1,8 @@
 ---
-title: "dtw2"
+title: "dct"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dtw2}
+  %\VignetteIndexEntry{dct}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r, child="_dtw2_child.Rmd"}
+```{r, child="_dct-explanation_child.Rmd"}
 ```
 
 

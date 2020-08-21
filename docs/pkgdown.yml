@@ -2,10 +2,12 @@ pandoc: 2.9.2.1
 pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
+  _dct-explanation_child: _dct-explanation_child.html
+  _dtw2_child: _dtw2_child.html
   base-example: base-example.html
   benchmarking-dct: benchmarking-dct.html
-  dct-explanation_child: dct-explanation_child.html
+  dct: dct.html
   dtw2: dtw2.html
-  dtw2_child: dtw2_child.html
   tune: tune.html
-last_built: 2020-08-18T18:08Z
+last_built: 2020-08-21T14:25Z
+
