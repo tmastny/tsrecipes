@@ -113,12 +113,6 @@ transform are the most important. They provide
 
 ## Feature Selection
 
-todo: probably want to never remove the ts column and have the user
-`step_rm` it at the end.
-
-textrecipes always overwrites columns, but that has the problem of
-comparing original to reconstruction.
-
 ## References
 
 Sayood, K. (2006). *Introduction to data compression*.
