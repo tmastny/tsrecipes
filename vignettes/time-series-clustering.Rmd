@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ## Introduction
 
 Clustering is all about finding groups of similar observations based on 
@@ -228,7 +227,8 @@ if this has been implemented anywhere, or if its technically feasible to do so.
 
 Fortunately, the `dtwclust::tsclust` lets you precompute the the similarity
 matrix and supply that to the cluster algorithms. Care must be taken here
-to avoid data leakage (see the section below).
+to avoid data leakage; make sure the distance matrix is only computed
+on the training data.
 
 Using the precomputed distance matrix, it's possible
 to tune the number of clusters much faster than otherwise
@@ -291,15 +291,25 @@ tune_results %>%
   select(k, mean)
 ```
 
-### Comparison to dct
+Increasing the number of clusters does make the feature more useful in
+predicting the outcome. With too many clusters, the usefulness
+starts to decrease. There may be more correlation with the class,
+but you can no longer visualize and understand why certain time series
+are clustered. 
 
-Tuning clusters is not necessarily something I'd recommend. s
+If the goal is to simplify increase the classification accuracy,
+rather than understanding similar groups, there are better and faster ways.
+
+## Alternatives to supervised clustering
+
+Tuning clusters is not necessarily something I'd recommend.
 Clustering takes a long time, even if we are using the precomputed
 distance matrix. 
 
-And there are much better options for dimensionality reduction. Using the
-discrete cosine transform with 8 coefficients is almost as accurate as 64
-clusters. 32 coefficients brings the accuracy to 92%.
+And there are much better options for dimensionality reduction 
+for time series. Predicting the class using 8 discrete cosine transform coefficients 
+is almost as accurate as predicting the class with 64 clusters.
+32 coefficients brings the accuracy to 92%.
 
 ```{r}
 rec <- recipe(ethanol, var = names(ethanol), roles = c("id", "outcome", "input")) %>%
@@ -319,33 +329,12 @@ tune_results %>%
   select(k, mean)
 ```
 
-### Additional cluster options
+## Additional cluster options
 
-Finding useful clusters requires setting enough distinct clusters.
+Many clustering techniques and options are available in
+available in `dtwclust::tsclust`. I recommend reading the 
+[documentation](https://cran.r-project.org/web/packages/dtwclust/vignettes/dtwclust.pdf)
+if you aren't satisified with the defaults.
 
-But finding these clusters is also sensitive to the many options
-available in `dtwclust::tsclust`. 
-
-Theoretically, you could tune across the number of clusters, 
-as well as cluster (and distance methods). 
-
-It's worth checking out `dtwclust::compare_clusterings` if you are
-interested in doing this. 
-Right now it's not supported in `step_dtw`. Clustering with `tsclust`
-takes a long time, and finding useful clusters can also be subjective.
-
-I'd strongly recommend plotting clusters as a part of exploratory data analysis,
-rather than tuning blindly. Whether you doing a single clustering, or
-evaluating clusters objectively (scoring against classes) or subjectively
-(looking at the shape of clusters), you need to limit your explorations
-to the train set.
-
-Just make sure you are still only using your
-training data,  not your test data, when subjectively evaluating your clusters
-to avoid information leakage. 
-
-Be careful here: preprocessing, and even exploration on the training set
-can create [information leakage](http://www.feat.engineering/resampling.html),
-make your model appear more effective than it actually is.
-
-
+Additionally, `step_dtw` only allows tuning the number the number of clusters,
+but if you want more flexibility look into `dtwclust::compare_clusterings`.
