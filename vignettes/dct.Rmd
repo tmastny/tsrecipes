@@ -1,5 +1,5 @@
 ---
-title: "dct"
+title: "What is the discrete cosine transform?"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{dct}
@@ -10,13 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE
+  comment = "#>"
 )
 ```
 
-```{r, child="_dct-explanation_child.Rmd"}
+```{r, child="_dct.Rmd"}
 ```
-
-

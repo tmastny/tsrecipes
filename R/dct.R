@@ -141,8 +141,6 @@ tunable.step_dct <- function(x, ...) {
   )
 }
 
-
-# https://stackoverflow.com/questions/11215162/how-to-perform-a-fast-dct-discrete-cosine-transform-in-r
 #' @export
 fdct <- function(x) {
   N <- length(x)

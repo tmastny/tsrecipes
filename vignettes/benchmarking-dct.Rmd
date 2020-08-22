@@ -1,5 +1,5 @@
 ---
-title: "benchmarking-dct"
+title: "DCT Benchmarks"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{benchmarking-dct}
@@ -14,20 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Introduction
+
+The [dtt](https://cran.r-project.org/web/packages/dtt/index.html) provides
+discrete trigonometric transforms, but unfortunately the implementation is
+rather slow. 
+
+Following the suggestion of 
+[Stackoverflow](https://stackoverflow.com/questions/11215162/how-to-perform-a-fast-dct-discrete-cosine-transform-in-r)
+tsrecipes includes a faster discrete cosine transform based off of
+`stats::fft` and `stats::mvfft` that are included in R.
+
+## Single time series vector
+
 ```{r setup}
+library(dtt)
 library(tsrecipes)
 library(tidyverse)
-library(dtt)
 ```
 
 ```{r}
-tsdb <- tsrecipes::prices$ts
-ts <- tsdb[[1]]
-```
+ts <- prices$ts
 
-Single time series.
-
-```{r}
 dct_dtt <- dtt::dct
 bench_ts <- bench::mark(
   fdct(ts),
@@ -38,7 +46,7 @@ bench_ts %>%
   select(expression, min, median, mem_alloc)
 ```
 
-Matrix of time series.
+## Matrix of time series
 
 ```{r}
 dct_so_apply <- function(l) {
@@ -77,9 +85,7 @@ bench_tsdb <- bench::mark(
   dct_so_apply(tsdb),
   dct_so_mv(tsdb)
 )
-```
 
-```{r}
 bench_tsdb %>%
   select(expression, min, median, mem_alloc)
 ```

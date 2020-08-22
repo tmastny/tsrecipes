@@ -3,10 +3,7 @@
 The discrete cosine transform (DCT) can provide significant dimensionality 
 reduction
 for time series, improving accuracy in time series classification and clustering.
-That's the topic my previous [post]().
-
-Besides being a useful tool, DCT is fascinating in it's own right.
-It is a [perfectly reversible](https://en.wikipedia.org/wiki/Transform_coding#:~:text=Transform%20coding%20is%20a%20type,audio%20signals%20or%20photographic%20images.) transform that provides a principled way to remove irrelevant information.  
+That's the topic my previous [post](). 
 
 How is this possible, and why does it work so well for time series?
 I'll try to answer this by
@@ -18,12 +15,11 @@ I'll try to answer this by
 3. demonstrating that the *strength* and *frequency* of cosine waves are
    effective dimensionality reduction criteria
    
-   
 Lastly, I'll share some resources on data compression: the field of study
 where DCT originated, and why it has fundamental connections to
 machine learning. 
 
-## Time series as combinations of components
+## Components of time series
 
 A common tool in time series analysis is 
 [time series decomposition](https://otexts.com/fpp3/decomposition.html),
@@ -88,10 +84,11 @@ It's not as useful as other smoothing techniques, in general,
 because it a little too wavy. Note the blue waves that randomly appear in
 the flat section from 0 to 500.
 
-The discrete cosine feature is what makes all this possible. In the next section,
+The discrete cosine transformation is what makes all this possible. 
+In the next section,
 I'll explain how it really works.
 
-## Discrete cosine transform: cosine combinations
+## Cosine components
 
 To accomplish the frequency decomposition, we need basic units of frequency, 
 like the recurring units of time (week, month, year) in seasonal decomposition.
@@ -105,7 +102,7 @@ part of the 1751 cosine waves needed to represent the
 red time series (of length 1751) in the previous section.
 
 ```{r}
-cosine <- function(i, j = 1:60) {
+cosine <- function(i, j) {
   cos(pi / length(j) * i * (j + 1/2))
 }
 ```
@@ -252,7 +249,7 @@ our understanding of human
 features have little impact on the reconstruction quality. 
 For example, the average human ear hears sound in the 
 [20 Hz to 20 kHz](https://en.wikipedia.org/wiki/Psychoacoustics)
-frequency ranges, so we can safely remove those waves no matter what.
+frequency ranges, so we can always safely remove those waves of those frequency.
 
 With the last time series, we first excluded the high-frequency
 components, but in some time series high-frequencies are the most 
@@ -300,7 +297,7 @@ ts_recon2 %>%
   proxy::dist()
 ```
 
-And in general, it is typically better to chose the largest coefficients,
+And in general, it is typically better to chose the **largest coefficients**,
 rather than low or high frequency ones. Even this isn't a silver bullet: 
 you still have to decide how many of the largest coefficients you want to include.
 
@@ -319,7 +316,7 @@ While I think it's useful in understanding what the discrete cosine is and does,
 doing dimensionality reduction on a *set* of time series you want to cluster 
 or classify requires a whole new approach.
 
-That explanation will be part of an upcoming blog post.
+That explanation will be part of an upcoming article.
 
 ## Data compression
 
