@@ -1,0 +1,384 @@
+---
+title: "Time series clustering"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{time-series-clustering}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Introduction
+
+Clustering is all about finding groups of similar observations based on 
+their features. It's used for
+
+* exploratory data analysis. Especially useful for time series where you can 
+  cluster time series of similar "shape".
+
+* feature engineering for time series classification, using the cluster as 
+  a feature. Can also be thought of as a dimensionality reduction
+  technique.
+
+* labeling groups of time series.
+
+In this guide, I'll show how you can use tsrecipes to cluster
+time series using the [dtwclust](https://github.com/asardaes/dtwclust)
+R package.
+
+For an introduction to clustering in general,
+UC Business Analytics Programming Guide has an excellent 
+[series](https://uc-r.github.io/kmeans_clustering)
+on clustering, introducing distance metrics and clustering techniques.
+
+And if you'd like to know more of the details behind clustering time
+series,
+check out my [dynamic time warping](https://uc-r.github.io/kmeans_clustering)
+article.
+
+
+## Evaluating Clusters
+
+With clustering, I think it's important to evaluate the clusters using
+*objective* and *subjective* criteria. 
+
+Subjective criteria include
+
+* visualizing the "shape" of time series within clusters to see if there is a
+  pattern. If the shape isn't obvious, you can try alternative methods or
+  increase the number of clusters. Visualizations of noisy, high-frequency
+  time series may not be useful. In this case, you may want to visualize 
+  smoothed trends of the cluster, rather than raw time series.
+
+* inspecting clusters for clutter: elements within the cluster that don't seem
+  to belong. This may indicate you need to increase the number of clusters.
+
+Objective criteria include
+
+* checking the number of elements per cluster.
+  Especially with hierarchical clustering, occasionally a cluster will have
+  90% of the data, which isn't very useful.
+  
+* evaluation against known classes, if available. This can even be helpful
+  if only a small amount of labeled data is available.
+  
+* calculating cluster statistics^[I won't cover clustering statistics here,
+  but the UC Business Analytics Programming Guide 
+  [series](https://uc-r.github.io/kmeans_clustering)
+  has many examples.].
+
+These principles will serve as a guide while clustering the
+[Ethanol](http://www.timeseriesclassification.com/description.php?Dataset=EthanolLevel)
+data.
+
+## Ethanol
+
+The `ethanol` dataset has four classes, based on the levels of alcohol in the 
+fuel. 
+
+
+```{r}
+library(tsrecipes)
+library(tidyverse)
+library(dtwclust)
+library(patchwork)
+library(recipes)
+```
+
+```{r}
+et
+```
+
+
+```{r}
+ethanol_clusters %>%
+  rowwise() %>%
+  mutate(n = list(1:1751)) %>%
+  ungroup() %>%
+  unnest(c(ts, n)) %>%
+  ggplot(aes(n, ts, color = as.factor(dtwclust_ts))) +
+  geom_line(aes(group = id), show.legend = FALSE) +
+  facet_wrap(~class)
+```
+
+The actual classes of the time series do not visually group into distinct 
+shapes, indicating to me there is a lot of variation within each class.
+
+
+
+`step_dtw` clusters time series using the dynamic time
+warping similarity metric. Behind the scenes, `step_dtw` uses
+[dtwclust](https://github.com/asardaes/dtwclust). All it's options
+are available, but we'll stick with the defaults.
+
+
+
+
+
+```{r, echo=FALSE}
+if (!file.exists("ethanol_distmat.RDS")) {
+  prepped <- recipe(ethanol) %>%
+      step_dtw(ts, k = 4) %>%
+      prep() 
+  
+   prepped$steps[[1]]$dtwclust$ts@distmat %>% 
+     saveRDS("ethanol_distmat.RDS")
+}
+
+if (!file.exists("ethanol_clusters.RDS")) {
+  ethanol_clusters <- recipe(ethanol) %>%
+    step_dtw(ts, k = 4) %>%
+    prep() %>%
+    bake(ethanol)
+  
+  saveRDS(ethanol_clusters, "ethanol_clusters.RDS")
+}
+
+ethanol_clusters <- readRDS("ethanol_clusters.RDS")
+```
+
+```{r}
+ethanol_distmat <- readRDS("ethanol_distmat.RDS")
+```
+
+
+
+
+
+Four classes are known ahead of time, so it seems reasonable to start with 
+four clusters.
+
+I always start with visualizing the time series within each cluster.
+
+```{r}
+ethanol_clusters %>%
+  rowwise() %>%
+  mutate(n = list(1:1751)) %>%
+  ungroup() %>%
+  unnest(c(ts, n)) %>%
+  ggplot() +
+  geom_line(aes(n, ts, color = class, group = id), show.legend = FALSE) +
+  facet_wrap(~dtwclust_ts)
+```
+
+Visually, there are distinct shapes within each cluster. Clusters 1 and 4
+both have a clear middle dip. Cluster 2 has very few wiggles on the right, and
+cluster 3 is almost its mirror image, with few wiggles on the left. 
+
+All clusters seem a little cluttered: especially 2 and 3
+with all the wiggles on the left and right respectively. 
+
+Comparing the "shape" of the clusters to the shape of the individual classes,
+there doesn't seem to be a lot of obvious similarity.
+
+```{r}
+ethanol_clusters %>%
+  rowwise() %>%
+  mutate(n = list(1:1751)) %>%
+  ungroup() %>%
+  unnest(c(ts, n)) %>%
+  ggplot(aes(n, ts, color = as.factor(dtwclust_ts))) +
+  geom_line(aes(group = id), show.legend = FALSE) +
+  facet_wrap(~class)
+```
+
+The actual classes of the time series do not visually group into distinct 
+shapes, indicating to me there is a lot of variation within each class.
+
+```{r}
+mm_model <- ethanol_clusters %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  nnet::multinom(class ~ dtwclust_ts, data = .)
+```
+
+Predicting the class based on the cluster is only 31% accurate. Better than 
+random chance (25%), but still not great. 
+
+```{r}
+pred_eth <- ethanol_clusters %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  mutate(pred = predict(mm_model, ., type = "class"))
+
+pred_eth %>%
+  group_by(class, pred) %>%
+  summarise(n = n()) %>%
+  group_by(pred_correct = class == pred) %>%
+  summarise(n = sum(n)) %>%
+  mutate(percent = n / sum(n))
+```
+
+
+Based on this analysis, I bet the clustering will be more useful if there are
+more clusters. While each cluster has a unique shape, there is still a lot of 
+clutter. Moreover, we see a large amount of variation within each class. 
+There will need to be more clusters to capture that variation.
+
+
+
+## TODO
+
+One of the most expensive parts of `tsclust` is calculating the distance matrix.
+If we could presupply the distance matrix as an option to step_dtw 
+(or another step entirely), then we could significantly speed up the process.
+
+what about `step_proxy` and use different clustering methods against that?
+
+
+
+```{r}
+if (!file.exists("ethanol_clusters8.RDS")) {
+  ethanol_clusters8 <- recipe(ethanol) %>%
+    step_dtw(ts, k = 8) %>%
+    prep() %>%
+    bake(ethanol)
+  
+  saveRDS(ethanol_clusters8, "ethanol_clusters8.RDS")
+}
+
+ethanol_clusters8 <- readRDS("ethanol_clusters8.RDS")
+```
+
+```{r}
+model8 <- ethanol_clusters8 %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  nnet::multinom(class ~ dtwclust_ts, data = .)
+```
+
+With 8 clusters, there are more definition to the shapes, and a lot less clutter.
+
+```{r}
+ethanol_clusters8 %>%
+  rowwise() %>%
+  mutate(n = list(1:1751)) %>%
+  ungroup() %>%
+  unnest(c(ts, n)) %>%
+  ggplot() +
+  geom_line(aes(n, ts, color = class, group = id), show.legend = FALSE) +
+  facet_wrap(~dtwclust_ts)
+```
+
+```{r}
+pred_eth <- ethanol_clusters8 %>%
+  mutate(dtwclust_ts = as.factor(dtwclust_ts)) %>%
+  mutate(pred = predict(model8, ., type = "class"))
+
+pred_eth %>%
+  group_by(class, pred) %>%
+  summarise(n = n()) %>%
+  group_by(pred_correct = class == pred) %>%
+  summarise(n = sum(n)) %>%
+  mutate(percent = n / sum(n))
+```
+
+Additionally, there is a 3% increase in accuracy. 
+
+### Additional Clusters
+
+You may have noticed that running `step_dtw` takes a long time. 
+The bottleneck is calculating the dynamic time warping distance. 
+Most implementations
+have a computational complexity of $O(N^2)$^[
+Some improvements can be made. `dtwclust` offers `dtw_basic` by default, 
+which is significantly faster, with fewer features. 
+And the [theoretical](https://dl.acm.org/doi/10.1145/3230734)
+computational complexity is $O(n^2/\log\log(n))$, although I don't know
+if this has been implemented anywhere, or if its technically feasible to do so.
+] 
+to calculate the distance between two time series, 
+and that calculation must happen between *every pair* of time series 
+in the dataset to cluster.
+
+Fortunately, the `dtwclust` interface lets you precompute the the similarity
+matrix and supply that to the cluster algorithms. Care must be taken here
+to avoid data leakage (see the section below).
+
+
+```{r}
+getwd()
+```
+
+```{r}
+distmat <- readRDS("ethanol_distmat.RDS")
+```
+
+```{r}
+library(tidymodels)
+
+dtw_options = list(control = dtwclust::partitional_control(distmat = distmat))
+
+# rec <- recipe(
+#   ethanol, vars = names(ethanol), roles = c("id", "outcome", "input")
+# ) %>%
+rec <- recipe(ethanol) %>%
+  update_role(everything(), new_role = "id") %>%
+  update_role(class, new_role = "outcome") %>%
+  step_dtw(ts, k = tune(), options = dtw_options) %>%
+  step_mutate_at(all_predictors(), fn = factor)
+```
+
+```{r}
+val <- tibble(
+  splits = list(make_splits(
+    list(analysis = 1:504, assessment = 1:504), data = ethanol
+  ))
+) %>%
+  new_rset(c(id = "validation"), subclass = "rset")
+```
+
+```{r}
+if (!file.exists("ethanol_tune_results.RDS")) {
+  tune_results <- workflow() %>%
+    add_model(multinom_reg() %>% set_engine("nnet")) %>%
+    add_recipe(rec) %>%
+    tune_grid(
+      resamples = val,
+      grid = expand_grid(k = c(4, 8, 16, 32, 64))
+    )
+  saveRDS(tune_results, "ethanol_tune_results.RDS")
+}
+
+tune_results <- readRDS("ethanol_tune_results.RDS")
+```
+
+
+```{r}
+tune_results %>%
+  collect_metrics() %>%
+  filter(.metric == "accuracy") %>%
+  select(k, mean)
+```
+
+
+Finding useful clusters requires setting enough distinct clusters.
+
+But finding these clusters is also sensitive to the many options
+available in `dtwclust::tsclust`. 
+
+Theoretically, you could tune across the number of clusters, 
+as well as cluster (and distance methods). 
+
+It's worth checking out `dtwclust::compare_clusterings` if you are
+interested in doing this. 
+Right now it's not supported in `step_dtw`. Clustering with `tsclust`
+takes a long time, and finding useful clusters can also be subjective.
+
+I'd strongly recommend plotting clusters as a part of exploratory data analysis,
+rather than tuning blindly. Whether you doing a single clustering, or
+evaluating clusters objectively (scoring against classes) or subjectively
+(looking at the shape of clusters), you need to limit your explorations
+to the train set.
+
+Just make sure you are still only using your
+training data,  not your test data, when subjectively evaluating your clusters
+to avoid information leakage. 
+
+Be careful here: preprocessing, and even exploration on the training set
+can create [information leakage](http://www.feat.engineering/resampling.html),
+make your model appear more effective than it actually is.

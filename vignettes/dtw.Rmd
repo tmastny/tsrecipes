@@ -1,5 +1,5 @@
 ---
-title: "dtw2"
+title: "What is dynamic time warping?"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{dtw2}
@@ -10,13 +10,11 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE
+  comment = "#>"
 )
 ```
 
-```{r, child="_dtw2_child.Rmd"}
+```{r, child="_dtw.Rmd"}
 ```
 
 
