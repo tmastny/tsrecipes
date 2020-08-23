@@ -49,6 +49,10 @@ step_dct <- function(
 #
 #   2. You want to use a different selection procedure, so you return
 #      `k = length(ts)`.
+#
+#   3. How does dct reduce dimensions on a set of time series
+#
+#   4. How can you cluster using dct
 
 step_dct_new <- function(terms, role, trained, k, coefs, skip, id) {
   step(
