@@ -7,8 +7,7 @@
 #'
 #' @param k The number of discrete Fourier transform coefficients
 #'
-#' @param coefs A list of the length and coefficient indices for each
-#' time series passed to the step, created once the step has been trained.
+#' @param series Name of column to transform,  created once the step has been trained.
 #'
 #' @references Sayood, K. Introduction to Data Compression
 #'
@@ -20,7 +19,6 @@ step_fft <- function(
   role = "predictor",
   trained = FALSE,
   k = 4,
-  dct = TRUE,
   series = NULL,
   skip = FALSE,
   id = recipes::rand_id("tff")
