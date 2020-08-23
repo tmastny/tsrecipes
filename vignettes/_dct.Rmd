@@ -3,7 +3,6 @@
 The discrete cosine transform (DCT) can provide significant dimensionality 
 reduction
 for time series, improving accuracy in time series classification and clustering.
-That's the topic my previous [post](). 
 
 How is this possible, and why does it work so well for time series?
 I'll try to answer this by
