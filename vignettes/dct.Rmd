@@ -2,7 +2,7 @@
 title: "What is the discrete cosine transform?"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dct}
+  %\VignetteIndexEntry{What is the discrete cosine transform?}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

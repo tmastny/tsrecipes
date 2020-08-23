@@ -2,7 +2,7 @@
 title: "DCT Benchmarks"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{benchmarking-dct}
+  %\VignetteIndexEntry{DCT Benchmarks}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -34,7 +34,7 @@ library(tidyverse)
 ```
 
 ```{r}
-ts <- prices$ts
+ts <- prices$ts[[1]]
 
 dct_dtt <- dtt::dct
 bench_ts <- bench::mark(
@@ -46,7 +46,7 @@ bench_ts %>%
   select(expression, min, median, mem_alloc)
 ```
 
-## Matrix of time series
+## List of time series
 
 ```{r}
 dct_so_apply <- function(l) {
@@ -79,11 +79,13 @@ dct_dtt_mv <- function(l) {
     dct()
 }
 
+ts_list <- prices$ts
+
 bench_tsdb <- bench::mark(
-  dct_dtt_apply(tsdb),
-  dct_dtt_mv(tsdb),
-  dct_so_apply(tsdb),
-  dct_so_mv(tsdb)
+  dct_dtt_apply(ts_list),
+  dct_dtt_mv(ts_list),
+  dct_so_apply(ts_list),
+  dct_so_mv(ts_list)
 )
 
 bench_tsdb %>%

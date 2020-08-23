@@ -2,7 +2,7 @@
 title: "What is dynamic time warping?"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{dtw2}
+  %\VignetteIndexEntry{What is dynamic time warping?}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
