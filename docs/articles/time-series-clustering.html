@@ -44,6 +44,9 @@
   </a>
 </li>
 <li>
+  <a href="../articles/tsrecipes.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -54,9 +57,6 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/base-example.html">base-example</a>
-    </li>
-    <li>
       <a href="../articles/benchmarking-dct.html">DCT Benchmarks</a>
     </li>
     <li>
@@ -67,9 +67,6 @@
     </li>
     <li>
       <a href="../articles/time-series-clustering.html">Time series clustering with dynamic time warping</a>
-    </li>
-    <li>
-      <a href="../articles/tune.html">tune</a>
     </li>
   </ul>
 </li>
@@ -179,9 +176,7 @@
 <span class="co">#&gt; x yardstick::spec() masks readr::spec()</span>
 <span class="co">#&gt; x recipes::step()   masks stats::step()</span></pre></body></html></div>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">ethanol</span> <span class="kw">%&gt;%</span>
-  <span class="fu">rowwise</span>() <span class="kw">%&gt;%</span>
   <span class="fu">mutate</span>(<span class="kw">n</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fl">1</span>:<span class="fl">1751</span>)) <span class="kw">%&gt;%</span>
-  <span class="fu">ungroup</span>() <span class="kw">%&gt;%</span>
   <span class="fu">unnest</span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">ts</span>, <span class="no">n</span>)) <span class="kw">%&gt;%</span>
   <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="no">n</span>, <span class="no">ts</span>)) +<span class="co">#, color = as.factor(id))) +</span>
   <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="kw">group</span> <span class="kw">=</span> <span class="no">id</span>), <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">0.2</span>, <span class="kw">show.legend</span> <span class="kw">=</span> <span class="fl">FALSE</span>) +
@@ -201,9 +196,7 @@
 <span class="no">ethanol_clusters</span> <span class="kw">&lt;-</span> <span class="fu">bake</span>(<span class="no">prepped</span>, <span class="no">ethanol</span>)</pre></body></html></div>
 <p>I always start with visualizing the time series within each cluster.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">ethanol_clusters</span> <span class="kw">%&gt;%</span>
-  <span class="fu">rowwise</span>() <span class="kw">%&gt;%</span>
   <span class="fu">mutate</span>(<span class="kw">n</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fl">1</span>:<span class="fl">1751</span>)) <span class="kw">%&gt;%</span>
-  <span class="fu">ungroup</span>() <span class="kw">%&gt;%</span>
   <span class="fu">unnest</span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">ts</span>, <span class="no">n</span>)) <span class="kw">%&gt;%</span>
   <span class="fu">ggplot</span>() +
   <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="no">n</span>, <span class="no">ts</span>, <span class="kw">group</span> <span class="kw">=</span> <span class="no">id</span>), <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">0.2</span>, <span class="kw">show.legend</span> <span class="kw">=</span> <span class="fl">FALSE</span>) +
@@ -347,7 +340,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by First Last.</p>
+  <p>Developed by Timothy Mastny.</p>
 </div>
 
 <div class="pkgdown">

@@ -4,11 +4,10 @@ pkgdown_sha: ~
 articles:
   _dct: _dct.html
   _dtw: _dtw.html
-  base-example: base-example.html
   benchmarking-dct: benchmarking-dct.html
   dct: dct.html
   dtw: dtw.html
   time-series-clustering: time-series-clustering.html
-  tune: tune.html
-last_built: 2020-08-23T18:04Z
+  tsrecipes: tsrecipes.html
+last_built: 2020-08-23T18:58Z
 

@@ -44,6 +44,9 @@
   </a>
 </li>
 <li>
+  <a href="../articles/tsrecipes.html">Get started</a>
+</li>
+<li>
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -54,9 +57,6 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/base-example.html">base-example</a>
-    </li>
-    <li>
       <a href="../articles/benchmarking-dct.html">DCT Benchmarks</a>
     </li>
     <li>
@@ -67,9 +67,6 @@
     </li>
     <li>
       <a href="../articles/time-series-clustering.html">Time series clustering with dynamic time warping</a>
-    </li>
-    <li>
-      <a href="../articles/tune.html">tune</a>
     </li>
   </ul>
 </li>
@@ -137,8 +134,8 @@
 <span class="co">#&gt; # A tibble: 2 x 4</span>
 <span class="co">#&gt;   expression       min   median mem_alloc</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;  &lt;bch:tm&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;</span>
-<span class="co">#&gt; 1 fdct(ts)      22.4µs     29µs     162KB</span>
-<span class="co">#&gt; 2 dct_dtt(ts)  131.9µs    158µs     149KB</span></pre></body></html></div>
+<span class="co">#&gt; 1 fdct(ts)      21.8µs     28µs     162KB</span>
+<span class="co">#&gt; 2 dct_dtt(ts)  130.5µs    157µs     149KB</span></pre></body></html></div>
 </div>
 <div id="list-of-time-series" class="section level2">
 <h2 class="hasAnchor">
@@ -188,10 +185,10 @@
 <span class="co">#&gt; # A tibble: 4 x 4</span>
 <span class="co">#&gt;   expression                  min   median mem_alloc</span>
 <span class="co">#&gt;   &lt;bch:expr&gt;             &lt;bch:tm&gt; &lt;bch:tm&gt; &lt;bch:byt&gt;</span>
-<span class="co">#&gt; 1 dct_dtt_apply(ts_list) 174.24ms 174.69ms    49.4MB</span>
-<span class="co">#&gt; 2 dct_dtt_mv(ts_list)    164.84ms    166ms    49.4MB</span>
-<span class="co">#&gt; 3 dct_so_apply(ts_list)   25.81ms  30.94ms    14.3MB</span>
-<span class="co">#&gt; 4 dct_so_mv(ts_list)       6.44ms   8.79ms     5.8MB</span></pre></body></html></div>
+<span class="co">#&gt; 1 dct_dtt_apply(ts_list) 175.36ms 176.31ms    49.4MB</span>
+<span class="co">#&gt; 2 dct_dtt_mv(ts_list)    183.21ms 286.65ms    49.4MB</span>
+<span class="co">#&gt; 3 dct_so_apply(ts_list)   23.57ms  26.93ms    14.3MB</span>
+<span class="co">#&gt; 4 dct_so_mv(ts_list)       6.07ms   8.55ms     5.8MB</span></pre></body></html></div>
 </div>
   </div>
 
@@ -206,7 +203,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by First Last.</p>
+  <p>Developed by Timothy Mastny.</p>
 </div>
 
 <div class="pkgdown">

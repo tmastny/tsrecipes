@@ -5,14 +5,17 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What the Package Does (One Line, Title Case) • tsrecipes</title>
+<title>Time series preprocessing for tidymodels • tsrecipes</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="What the Package Does (One Line, Title Case)">
-<meta property="og:description" content="What the package does (one paragraph).">
+<script src="pkgdown.js"></script><meta property="og:title" content="Time series preprocessing for tidymodels">
+<meta property="og:description" content="tsrecipes provides time series dimensionality reduction and feature
+    engineering using the discrete cosine transform. It also offers time series
+    clustering using the dtwclust package. All preprocessing methods
+    are designed to work in the tidymodels framework.">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -44,6 +47,9 @@
   </a>
 </li>
 <li>
+  <a href="articles/tsrecipes.html">Get started</a>
+</li>
+<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
@@ -54,9 +60,6 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/base-example.html">base-example</a>
-    </li>
-    <li>
       <a href="articles/benchmarking-dct.html">DCT Benchmarks</a>
     </li>
     <li>
@@ -67,9 +70,6 @@
     </li>
     <li>
       <a href="articles/time-series-clustering.html">Time series clustering with dynamic time warping</a>
-    </li>
-    <li>
-      <a href="articles/tune.html">tune</a>
     </li>
   </ul>
 </li>
@@ -98,18 +98,12 @@
 <a href="#tsrecipes" class="anchor"></a>tsrecipes</h1></div>
 <!-- badges: start -->
 <!-- badges: end -->
-<p>The goal of tsrecipes is to provide steps for the <a href="https://github.com/tidymodels/recipes/">recipes</a> package and <a href="https://www.tidymodels.org/">tidymodels</a> framework for preprocessing time series into features for machine learning.</p>
-<p>This package is modeled after the <a href="https://github.com/tidymodels/textrecipes">textrecipes</a>: both packages transform a sequence of data (words vs. time series).</p>
-<p>In addition to the unique addition of the discrete cosine transform, tsrecipes also provides recipe steps for transformations found in the <a href="https://feasts.tidyverts.org/">feasts</a> R package.</p>
-<p>And features from the Python package <a href="https://github.com/blue-yonder/tsfresh">tsfresh</a>, although at the moment it contains many more transformations.</p>
-<p>tsrecipes supports three categories of time series feature engineering:</p>
+<p>The goal of tsrecipes is to provide time series proprocessing to accommodate time series classification and clustering in the <a href="https://www.tidymodels.org/">tidymodels</a> framework.</p>
+<p>The primary steps are</p>
 <ul>
-<li>time series transformations</li>
-<li>time series clustering</li>
-<li>time series feature extraction</li>
+<li>discrete cosine transform for dimensionality reduction and feature engineering</li>
+<li>dynamic time warping clustering</li>
 </ul>
-<p>The goal of time series preprocessing is to support unsuperived and supervised machine learning. Either time series classification, where you want to predict the label associated with a time series (or set of time series).</p>
-<p>This also supports generalized feature enigneering for machine learning models. Features into machine learning are often implicitly aggregated over a period of time. For example, maybe a feature is the number of hours watched in a month, or total time spent visiting a website. But you can lose a lot of information by only considering the aggregate total. Treating features as a time series may increase the predictive power of the model.</p>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
@@ -117,55 +111,68 @@
 <div class="sourceCode" id="cb1"><pre class="r"><span class="co"># install.packages("devtools")</span>
 <span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"tmastny/tsrecipes"</span>)</pre></div>
 </div>
-<div id="time-series-preprocessing" class="section level2">
+<div id="examples" class="section level2">
 <h2 class="hasAnchor">
-<a href="#time-series-preprocessing" class="anchor"></a>Time series preprocessing</h2>
-<p>You want to apply time series preprocessing when you have a set of related time series:</p>
-<p><img src="ts-set.svg" width="400px" style="display: block; margin: auto;"></p>
-<p>Each entry of the set may belong to a class or label. The entries may also be multivariate time series.</p>
-<p>In general, it’s not feasible or recommended to use the raw time series values as classification or clustering features.</p>
-<p>Why do we need time series preprocessing in the first place? You could each entry of the time series a feature:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">#&gt; # A tibble: 965 x 6</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a><span class="co">#&gt;    class           `1`     `2`    `3`    `4`    `5`</span></span>
-<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;    &lt;fct&gt;         &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;</span></span>
-<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt;  1 no_increase -4.15   -0.770   2.01  -2.69   2.04 </span></span>
-<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt;  2 no_increase -0.749   0.943  -0.187  0.375 -0.933</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt;  3 no_increase  4.93    1.06    0.774 -0.264  0.301</span></span>
-<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt;  4 no_increase  1.15   -0.0380  0.975 -0.615 -0.189</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt;  5 no_increase  3.08   -0.660   0.166  1.69  -2.19 </span></span>
-<span id="cb2-9"><a href="#cb2-9"></a><span class="co">#&gt;  6 no_increase  1.59   -0.419  -0.511  1.29  -0.247</span></span>
-<span id="cb2-10"><a href="#cb2-10"></a><span class="co">#&gt;  7 no_increase -0.824   2.84   -1.03  -0.683  0.209</span></span>
-<span id="cb2-11"><a href="#cb2-11"></a><span class="co">#&gt;  8 no_increase  0.0330  0.0659 -1.12   1.97  -0.588</span></span>
-<span id="cb2-12"><a href="#cb2-12"></a><span class="co">#&gt;  9 no_increase -1.24   -1.30    3.84   1.01   0.363</span></span>
-<span id="cb2-13"><a href="#cb2-13"></a><span class="co">#&gt; 10 no_increase  0.252   3.30   -8.63  -1.53   1.71 </span></span>
-<span id="cb2-14"><a href="#cb2-14"></a><span class="co">#&gt; # … with 955 more rows</span></span></code></pre></div>
-<p>Raw time series make poor features, since they are typically high dimensional. And even if you have a model that handles high dimensional data, the important information of the time series might be the overall trend or seasonality: not the raw value of any particular day (see <a href="https://otexts.com/fpp3/acf.html">autocorrelation</a>).</p>
-<p>Then the goal of preprocessing is to find qualities of the time series that are actually important, and to reduce the dimension of the features.</p>
+<a href="#examples" class="anchor"></a>Examples</h2>
+<div id="time-series-dimensionality-reduction" class="section level3">
+<h3 class="hasAnchor">
+<a href="#time-series-dimensionality-reduction" class="anchor"></a>Time series dimensionality reduction</h3>
+<p>In time series classification, using the time series as a feature often results in poor accuracy because it’s the auto-correlation between entries and the overall trend that’s the most informative, rather than individual values.</p>
+<p>The discrete cosine transform is one way to extract useful, uncorrelated features with significantly fewer dimensions than the time series.</p>
+<p>In this example, it’s possible to classify time series of length 1751 into 4 classes with 70% accuracy, only using 16 dimensions.</p>
+<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">tidymodels</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">tsrecipes</span>)
+
+<span class="no">rec</span> <span class="kw">&lt;-</span> <span class="fu">recipe</span>(<span class="no">ethanol</span>, <span class="kw">var</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">ethanol</span>), <span class="kw">roles</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"id"</span>, <span class="st">"outcome"</span>, <span class="st">"input"</span>)) <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="reference/step_dct.html">step_dct</a></span>(<span class="no">ts</span>, <span class="kw">k</span> <span class="kw">=</span> <span class="fu">tune</span>())
+
+<span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span>(<span class="fl">2532</span>)
+<span class="no">tune_results</span> <span class="kw">&lt;-</span> <span class="fu">workflow</span>() <span class="kw">%&gt;%</span>
+  <span class="fu">add_model</span>(<span class="fu">multinom_reg</span>() <span class="kw">%&gt;%</span> <span class="fu">set_engine</span>(<span class="st">"nnet"</span>)) <span class="kw">%&gt;%</span>
+  <span class="fu">add_recipe</span>(<span class="no">rec</span>) <span class="kw">%&gt;%</span>
+  <span class="fu">tune_grid</span>(
+    <span class="kw">resamples</span> <span class="kw">=</span> <span class="fu">validation_split</span>(<span class="no">ethanol</span>),
+    <span class="kw">grid</span> <span class="kw">=</span> <span class="fu">expand_grid</span>(<span class="kw">k</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">4</span>, <span class="fl">8</span>, <span class="fl">16</span>, <span class="fl">32</span>, <span class="fl">64</span>))
+  )
+
+<span class="no">tune_results</span> <span class="kw">%&gt;%</span>
+  <span class="fu">collect_metrics</span>() <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span>(<span class="no">.metric</span> <span class="kw">==</span> <span class="st">"accuracy"</span>) <span class="kw">%&gt;%</span>
+  <span class="fu">select</span>(<span class="no">k</span>, <span class="no">mean</span>)
+<span class="co">#&gt; # A tibble: 5 x 2</span>
+<span class="co">#&gt;       k  mean</span>
+<span class="co">#&gt;   &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class="co">#&gt; 1     4 0.278</span>
+<span class="co">#&gt; 2     8 0.389</span>
+<span class="co">#&gt; 3    16 0.754</span>
+<span class="co">#&gt; 4    32 0.746</span>
+<span class="co">#&gt; 5    64 0.849</span></pre></div>
 </div>
-<div id="transformations" class="section level2">
-<h2 class="hasAnchor">
-<a href="#transformations" class="anchor"></a>Transformations</h2>
-<p>Transformations are all about changing the time series to an alternative representative. Think of it like the binary representation of a number:</p>
-<blockquote>
-<p>29 &lt;-&gt; 11101</p>
-</blockquote>
-<p>The number is the same either way and the process is entirely reversible. But yet each representation has it’s own unique properties.</p>
-<p>For time series, the fast Fourier transform and the discrete cosine transform are the most important. They provide</p>
-<ul>
-<li>uncorrelated features</li>
-<li>unsupervised dimensionality reduction</li>
-</ul>
-<p><img src="reference/figures/README-unnamed-chunk-4-1.png" width="100%"></p>
+<div id="time-series-clustering" class="section level3">
+<h3 class="hasAnchor">
+<a href="#time-series-clustering" class="anchor"></a>Time series clustering</h3>
+<p>tsrecipes also enables times series clustering using the dynamic time warping metric. <code>step_dtw</code> is powered by the <a href="https://github.com/asardaes/dtwclust">dtwclust</a> package.</p>
+<div class="sourceCode" id="cb3"><pre class="r"><span class="no">ethanol_clusters</span> <span class="kw">&lt;-</span> <span class="fu">recipe</span>(<span class="no">ethanol</span>) <span class="kw">%&gt;%</span>
+  <span class="fu"><a href="reference/step_dtw.html">step_dtw</a></span>(<span class="no">ts</span>, <span class="kw">k</span> <span class="kw">=</span> <span class="fl">4</span>) <span class="kw">%&gt;%</span>
+  <span class="fu">prep</span>() <span class="kw">%&gt;%</span>
+  <span class="fu">bake</span>(<span class="no">ethanol</span>)</pre></div>
+<div class="sourceCode" id="cb4"><pre class="r"><span class="no">ethanol_clusters</span> <span class="kw">%&gt;%</span>
+  <span class="fu">mutate</span>(<span class="kw">n</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fl">1</span>:<span class="fl">1751</span>)) <span class="kw">%&gt;%</span>
+  <span class="fu">unnest</span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">ts</span>, <span class="no">n</span>)) <span class="kw">%&gt;%</span>
+  <span class="fu">ggplot</span>() +
+  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="no">n</span>, <span class="no">ts</span>, <span class="kw">group</span> <span class="kw">=</span> <span class="no">id</span>), <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">0.2</span>, <span class="kw">show.legend</span> <span class="kw">=</span> <span class="fl">FALSE</span>) +
+  <span class="fu">facet_wrap</span>(~<span class="no">dtwclust_ts</span>)</pre></div>
+<p><img src="reference/figures/README-unnamed-chunk-5-1.png" width="100%"></p>
 </div>
-<div id="feature-selection" class="section level2">
-<h2 class="hasAnchor">
-<a href="#feature-selection" class="anchor"></a>Feature Selection</h2>
 </div>
 <div id="references" class="section level2">
 <h2 class="hasAnchor">
 <a href="#references" class="anchor"></a>References</h2>
 <p>Sayood, K. (2006). <em>Introduction to data compression</em>.</p>
 <p>Primer on DCT: <a href="https://squidarth.com/rc/math/2018/06/24/fourier.html" class="uri">https://squidarth.com/rc/math/2018/06/24/fourier.html</a></p>
+<p>dtwclust and dtt</p>
+<p>This package is modeled after the <a href="https://github.com/tidymodels/textrecipes">textrecipes</a>: both packages transform a sequence of data (words vs. time series).</p>
+<p>The <a href="https://feasts.tidyverts.org/">feasts</a> R package and the Python package <a href="https://github.com/blue-yonder/tsfresh">tsfresh</a> contain many other time series preprocessing methods not included in this package.</p>
 </div>
 </div>
   </div>
@@ -183,14 +190,14 @@
 <div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
-<li>`use_mit_license()`, `use_gpl3_license()` or friends to
-    pick a license</li>
+<li><a href="LICENSE.html">Full license</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>First Last <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/YOUR-ORCID-ID" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li>Timothy Mastny <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/YOUR-ORCID-ID" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
 </ul>
 </div>
 
@@ -199,7 +206,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by First Last.</p>
+  <p>Developed by Timothy Mastny.</p>
 </div>
 
 <div class="pkgdown">

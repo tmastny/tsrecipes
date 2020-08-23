@@ -2,7 +2,7 @@
 title: "Time series clustering with dynamic time warping"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{time-series-clustering}
+  %\VignetteIndexEntry{Time series clustering with dynamic time warping}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -94,9 +94,7 @@ library(tidymodels)
 
 ```{r}
 ethanol %>%
-  rowwise() %>%
   mutate(n = list(1:1751)) %>%
-  ungroup() %>%
   unnest(c(ts, n)) %>%
   ggplot(aes(n, ts)) +#, color = as.factor(id))) +
   geom_line(aes(group = id), alpha = 0.2, show.legend = FALSE) +
@@ -151,9 +149,7 @@ I always start with visualizing the time series within each cluster.
 
 ```{r}
 ethanol_clusters %>%
-  rowwise() %>%
   mutate(n = list(1:1751)) %>%
-  ungroup() %>%
   unnest(c(ts, n)) %>%
   ggplot() +
   geom_line(aes(n, ts, group = id), alpha = 0.2, show.legend = FALSE) +
