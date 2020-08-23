@@ -22,11 +22,11 @@ their features. It's used for
 * exploratory data analysis. Especially useful for time series where you can 
   cluster time series of similar "shape".
 
+* labeling groups of time series.
+
 * feature engineering for time series classification, using the cluster as 
   a feature. Can also be thought of as a dimensionality reduction
   technique.
-
-* labeling groups of time series.
 
 In this guide, I'll show how you can use tsrecipes to cluster
 time series with dynamic time warping using the 
@@ -38,7 +38,7 @@ free to use traditional distance metrics and clustering techniques.
 ].
 
 If you'd like to learn more about dynamic time warping,
-check out my [dynamic time warping](https://uc-r.github.io/kmeans_clustering)
+check out my [dynamic time warping]()
 article.
 
 For an introduction to clustering in general,
@@ -68,13 +68,13 @@ Objective criteria include
   Especially with hierarchical clustering, occasionally a cluster will have
   90% of the data, which isn't very useful.
   
-* evaluation against known classes, if available. This can even be helpful
-  if only a small amount of labeled data is available.
-  
 * calculating cluster statistics^[I won't cover clustering statistics here,
   but the UC Business Analytics Programming Guide 
   [series](https://uc-r.github.io/kmeans_clustering)
   has many examples.].
+
+* evaluation against known classes, if available. This can even be helpful
+  if only a small amount of labeled data is available.
 
 These principles will serve as a guide while clustering the
 [Ethanol](http://www.timeseriesclassification.com/description.php?Dataset=EthanolLevel)
@@ -84,7 +84,6 @@ data.
 
 The `ethanol` dataset has four classes, based on the levels of alcohol in the 
 fuel. 
-
 
 ```{r}
 library(tsrecipes)
@@ -211,7 +210,7 @@ if there are more clusters.
 If you are following along, you may have noticed that clustering
 takes a long time.
 
-One of the most expensive parts is calculating the distance matrix^[
+One expensive operation is calculating the distance matrix^[
 Also called the dissimilarity matrix.
 ]. This must be done for every pair of observations. For 500 observations,
 that's 124,750 unique pairs^[500 choose 2].
@@ -294,8 +293,8 @@ tune_results %>%
 Increasing the number of clusters does make the feature more useful in
 predicting the outcome. With too many clusters, the usefulness
 starts to decrease. There may be more correlation with the class,
-but you can no longer visualize and understand why certain time series
-are clustered. 
+but you can no longer visualize and understand the characteristics 
+of certain clusters.
 
 If the goal is to simplify increase the classification accuracy,
 rather than understanding similar groups, there are better and faster ways.
@@ -309,7 +308,8 @@ distance matrix.
 And there are much better options for dimensionality reduction 
 for time series. Predicting the class using 8 discrete cosine transform coefficients 
 is almost as accurate as predicting the class with 64 clusters.
-32 coefficients brings the accuracy to 92%.
+32 coefficients brings the accuracy to 92%. Using `step_dct` is also significantly
+faster.
 
 ```{r}
 rec <- recipe(ethanol, var = names(ethanol), roles = c("id", "outcome", "input")) %>%
