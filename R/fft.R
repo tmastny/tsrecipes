@@ -24,9 +24,9 @@ step_fft <- function(
   id = recipes::rand_id("tff")
 ) {
 
-  terms <- ellipse_check(...)
+  terms <- recipes::ellipse_check(...)
 
-  add_step(
+  recipes::add_step(
     recipe,
     step_fft_new(
       terms = terms,
@@ -41,7 +41,7 @@ step_fft <- function(
 }
 
 step_fft_new <- function(terms, role, trained, k, series, skip, id) {
-  step(
+  recipes::step(
     subclass = "fft",
     terms = terms,
     role = role,
@@ -55,7 +55,11 @@ step_fft_new <- function(terms, role, trained, k, series, skip, id) {
 
 #' @export
 prep.step_fft <- function(x, training, info = NULL) {
-  col_names <- recipes::terms_select(terms = x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(
+    quos = x$terms,
+    data = training,
+    info = info
+  )
 
   step_fft_new(
     terms = x$terms,
@@ -69,11 +73,7 @@ prep.step_fft <- function(x, training, info = NULL) {
 }
 
 ttf_transform <- function(l, name, k) {
-  tff_mat <- l %>%
-    simplify2array() %>%
-    mvfft() %>%
-    t() %>%
-    .[, 1:k]
+  tff_mat <- t(mvfft(simplify2array(l)))[, 1:k]
 
   real_mat <- Re(tff_mat)
   colnames(real_mat) <- paste0("fft_re_", 1:ncol(tff_mat), "_", name)
@@ -81,16 +81,14 @@ ttf_transform <- function(l, name, k) {
   img_mat <- Im(tff_mat)
   colnames(img_mat) <- paste0("fft_im_", 1:ncol(tff_mat), "_", name)
 
-  list(real_mat, img_mat) %>%
-    purrr::map_dfc(tibble::as_tibble)
+  purrr::map_dfc(list(real_mat, img_mat), tibble::as_tibble)
 }
 
 #' @export
 bake.step_fft <- function(object, new_data, ...) {
   col_names <- object$series
 
-  tff_cols <- new_data[, col_names] %>%
-    purrr::imap_dfc(ttf_transform, object$k)
+  tff_cols <- purrr::imap_dfc(new_data[, col_names], ttf_transform, object$k)
 
   dplyr::bind_cols(new_data, tff_cols)
 }

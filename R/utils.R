@@ -8,10 +8,10 @@ step_iterator <- function(x, steps, ...) {
   xfs <- steps
 
   for (step in steps) {
-    xf <- recipe(x) %>%
-      step$step(...) %>%
-      prep() %>%
-      bake(prices)
+    rec <- recipes::recipe(x)
+    rec <- step$step(rec, ...)
+    rec <- recipes::prep(rec)
+    xf <- recipes::bake(rec, x)
 
     xfs[[step$name]]$data <- xf
   }

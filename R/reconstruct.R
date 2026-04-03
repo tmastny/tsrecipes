@@ -38,14 +38,14 @@ invert.step_dct <- function(step, name, coefs) {
 #'
 #' @export
 reconstruct <- function(x, name, step, ...) {
-  x %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(coefs = list(c(dplyr::c_across(...)))) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-      "{name}_recon" := list(invert(step, name, coefs)),
-      n = list(1:step$coefs[[name]]$.length)
-    ) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(-coefs)
+  x <- dplyr::rowwise(x)
+  x <- dplyr::mutate(x, coefs = list(c(dplyr::c_across(...))))
+  x <- dplyr::rowwise(x)
+  x <- dplyr::mutate(
+    x,
+    "{name}_recon" := list(invert(step, name, coefs)),
+    n = list(1:step$coefs[[name]]$.length)
+  )
+  x <- dplyr::ungroup(x)
+  dplyr::select(x, -coefs)
 }

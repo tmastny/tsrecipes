@@ -1,5 +1,7 @@
+dtw_test_prices <- tsrecipes::prices[1:12, ]
+
 test_that("step_dtw makes default clusters", {
-  xfs <- step_iterator(tsrecipes::prices, steps[3], ts)
+  xfs <- step_iterator(dtw_test_prices, steps[3], ts)
 
   clusters <- xfs$dtw$data$dtwclust_ts
 
@@ -9,7 +11,7 @@ test_that("step_dtw makes default clusters", {
 test_that("step_dtw makes k clusters", {
   xfs <- c(2, 5, 8) %>%
     map(~list(
-      step = step_iterator(tsrecipes::prices, steps[3], ts, k = .),
+      step = step_iterator(dtw_test_prices, steps[3], ts, k = .),
       k = .
     ))
 
@@ -21,7 +23,7 @@ test_that("step_dtw makes k clusters", {
 
 test_that("step_dtw accepts options", {
 
-  prepped <- recipe(tsrecipes::prices) %>%
+  prepped <- recipe(dtw_test_prices) %>%
     step_dtw(ts, options = list(type = "hierarchical")) %>%
     prep()
 

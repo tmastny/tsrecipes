@@ -27,9 +27,9 @@ step_dtw <- function(
   id = recipes::rand_id("dtw")
 ) {
 
-  terms <- ellipse_check(...)
+  terms <- recipes::ellipse_check(...)
 
-  add_step(
+  recipes::add_step(
     recipe,
     step_dtw_new(
       terms = terms,
@@ -45,7 +45,7 @@ step_dtw <- function(
 }
 
 step_dtw_new <- function(terms, role, trained, k, dtwclust, options, skip, id) {
-  step(
+  recipes::step(
     subclass = "dtw",
     terms = terms,
     role = role,
@@ -60,7 +60,11 @@ step_dtw_new <- function(terms, role, trained, k, dtwclust, options, skip, id) {
 
 #' @export
 prep.step_dtw <- function(x, training, info = NULL) {
-  col_names <- recipes::terms_select(terms = x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(
+    quos = x$terms,
+    data = training,
+    info = info
+  )
 
   dtwclust <- list()
   for (col_name in col_names) {

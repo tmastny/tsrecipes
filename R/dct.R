@@ -26,9 +26,9 @@ step_dct <- function(
   id = recipes::rand_id("dct")
 ) {
 
-  terms <- ellipse_check(...)
+  terms <- recipes::ellipse_check(...)
 
-  add_step(
+  recipes::add_step(
     recipe,
     step_dct_new(
       terms = terms,
@@ -55,7 +55,7 @@ step_dct <- function(
 #   4. How can you cluster using dct
 
 step_dct_new <- function(terms, role, trained, k, coefs, skip, id) {
-  step(
+  recipes::step(
     subclass = "dct",
     terms = terms,
     role = role,
@@ -75,18 +75,20 @@ colVars <- function(x) {
 
 #' @export
 prep.step_dct <- function(x, training, info = NULL) {
-  col_names <- recipes::terms_select(terms = x$terms, info = info)
+  col_names <- recipes::recipes_eval_select(
+    quos = x$terms,
+    data = training,
+    info = info
+  )
   k <- x$k
 
   coefs <- list()
   for (col_name in col_names) {
-    vars <- dct_transform(training[[col_name]]) %>%
-      colVars()
+    vars <- colVars(dct_transform(training[[col_name]]))
 
     indices <- 1:length(vars)
     if (!is.null(k)) {
-      top_k <- sort(vars, decreasing = TRUE)[1:k] %>%
-        min()
+      top_k <- min(sort(vars, decreasing = TRUE)[1:k])
 
       indices <- which(vars >= top_k)
     }
@@ -109,10 +111,7 @@ prep.step_dct <- function(x, training, info = NULL) {
 }
 
 dct_transform <- function(l) {
-  l %>%
-    simplify2array() %>%
-    mvfdct() %>%
-    t()
+  t(mvfdct(simplify2array(l)))
 }
 
 #' @export
@@ -128,9 +127,8 @@ bake.step_dct <- function(object, new_data, ...) {
     dct_cols[[col_name]] <- compressed_dct
   }
 
-  dct_cols %>%
-    purrr::map(tibble::as_tibble) %>%
-    dplyr::bind_cols(new_data, .)
+  dct_cols <- purrr::map(dct_cols, tibble::as_tibble)
+  dplyr::bind_cols(new_data, dct_cols)
 }
 
 
